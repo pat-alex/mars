@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>متابعة التربية العملية</title>
+  <style>
+    body { font-family: Tahoma, Arial, sans-serif; direction: rtl; padding: 16px; max-width: 560px; margin: auto; color: #222; }
+    h2 { text-align: center; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    select, input, textarea, button { width: 100%; padding: 10px; margin: 6px 0; font-size: 16px; box-sizing: border-box; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; }
+    button { background: #0f6e56; color: white; border: none; cursor: pointer; margin-top: 8px; }
+    button:hover { background: #085041; }
+    button.secondary { background: #888; }
+    button.secondary:hover { background: #666; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; font-size: 14px; }
+    .hidden { display: none; }
+    .msg { text-align: center; color: #0f6e56; font-weight: bold; }
+    .error { text-align: center; color: #a32d2d; font-weight: bold; }
+    .tabs { display: flex; gap: 6px; margin-top: 16px; }
+    .tabs button { flex: 1; background: #eee; color: #333; margin-top: 0; }
+    .tabs button.active { background: #0f6e56; color: white; }
+    .tabPanel { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-top: 8px; }
+    .box { border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-top: 14px; }
+    .loading { text-align: center; color: #888; }
+  </style>
+</head>
+<body>
+
+  <h2>متابعة التربية العملية</h2>
+
+  <div id="modeChoice">
+    <button onclick="showMode('code')">مدرسة مسجلة من قبل (الدخول بالكود)</button>
+    <button onclick="showMode('new')">تسجيل مدرسة جديدة لأول مرة</button>
+  </div>
+
+  <div id="codeMode" class="hidden">
+    <label>كود المدرسة</label>
+    <input type="text" id="schoolCodeInput" placeholder="مثال: 0102009">
+    <button onclick="loginByCode()">دخول</button>
+    <p class="error" id="codeError"></p>
+    <button class="secondary" onclick="backToChoice()">رجوع</button>
+  </div>
+
+  <div id="newMode" class="hidden">
+    <label>الإدارة التعليمية</label>
+    <select id="adminSelect"><option value="">جاري التحميل...</option></select>
+    <label>المرحلة</label>
+    <select id="stageSelect"><option value="">اختر الإدارة أولًا</option></select>
+    <label>اسم المدرسة</label>
+    <input type="text" id="newSchoolName" placeholder="اكتب اسم المدرسة كاملًا">
+    <button onclick="registerSchool()">تسجيل والحصول على الكود</button>
+    <div class="msg" id="newSchoolResult"></div>
+    <button class="secondary" onclick="backToChoice()">رجوع</button>
+  </div>
+
+  <div id="dashboard" class="hidden">
+    <p class="msg" id="schoolInfo"></p>
+
+    <div class="box">
+      <label style="margin-top:0">إضافة طالب معلم جديد</label>
+      <input type="text" id="newStudentName" placeholder="اسم الطالب المعلم">
+      <button onclick="addStudent()">إضافة</button>
+    </div>
+
+    <div class="tabs">
+      <button id="tabBtnAtt" class="active" onclick="switchTab('att')">الحضور</button>
+      <button id="tabBtnAct" onclick="switchTab('act')">المشاركات</button>
+      <button id="tabBtnProb" onclick="switchTab('prob')">المشاكل</button>
+    </div>
+
+    <div id="tabAtt" class="tabPanel">
+      <label>التاريخ</label>
+      <input type="date" id="attDate">
+      <table id="studentsTable">
+        <thead><tr><th>الطالب المعلم</th><th>الحالة</th><th>ملاحظة</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <button onclick="submitAttendance()">إرسال الحضور</button>
+      <p class="msg" id="doneMsgAtt"></p>
+    </div>
+
+    <div id="tabAct" class="tabPanel hidden">
+      <label>الطالب المعلم</label>
+      <select id="actStudentSelect"></select>
+      <label>نوع المشاركة</label>
+      <select id="actType">
+        <option value="حصة نُفذت">حصة نُفذت</option>
+        <option value="مشاركة">مشاركة</option>
+        <option value="عمل متميز">عمل متميز</option>
+      </select>
+      <label>التاريخ</label>
+      <input type="date" id="actDate">
+      <label>وصف (اختياري)</label>
+      <textarea id="actDesc" rows="2"></textarea>
+      <button onclick="submitActivityForm()">تسجيل المشاركة</button>
+      <p class="msg" id="doneMsgAct"></p>
+    </div>
+
+    <div id="tabProb" class="tabPanel hidden">
+      <label>الطالب المعلم</label>
+      <select id="probStudentSelect"></select>
+      <label>نوع المشكلة</label>
+      <select id="probType">
+        <option value="غياب متكرر">غياب متكرر</option>
+        <option value="سلوك">سلوك</option>
+        <option value="تنظيمي">تنظيمي</option>
+        <option value="أخرى">أخرى</option>
+      </select>
+      <label>الخطورة</label>
+      <select id="probSeverity">
+        <option value="عادية">عادية</option>
+        <option value="تحتاج تدخل فوري">تحتاج تدخل فوري</option>
+      </select>
+      <label>التاريخ</label>
+      <input type="date" id="probDate">
+      <label>وصف</label>
+      <textarea id="probDesc" rows="2"></textarea>
+      <button onclick="submitProblemForm()">تسجيل المشكلة</button>
+      <p class="msg" id="doneMsgProb"></p>
+    </div>
+
+    <div class="box">
+      <button onclick="exportPortfolio()">تصدير بورتفوليو المدرسة لملف مستقل</button>
+      <p class="msg" id="exportMsg"></p>
+    </div>
+  </div>
+
+<script>
+  // ====== رابط الـ Apps Script المنشور (يعمل كـ API) ======
+  const API_URL = 'https://script.google.com/macros/s/AKfycbx2foUAUXLGk9Ux2T_xdgclRmLYKBy9nlFBPB7gtx4oqinOt1dC1A2KnPKxmRcPM0ih_A/exec';
+
+  window.currentSchoolCode = null;
+
+  // دالة عامة لنداء أي إجراء في الـ API عن طريق GET (بدون CORS preflight)
+  function callApi(action, params, callback) {
+    params = params || {};
+    let query = 'action=' + encodeURIComponent(action);
+    Object.keys(params).forEach(function (k) {
+      query += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    });
+    fetch(API_URL + '?' + query)
+      .then(function (res) { return res.json(); })
+      .then(function (json) {
+        if (json.success) {
+          callback(json.data);
+        } else {
+          alert('حدث خطأ: ' + json.error);
+        }
+      })
+      .catch(function (err) {
+        alert('تعذر الاتصال بالخادم، تأكد من الاتصال بالإنترنت. (' + err.message + ')');
+      });
+  }
+
+  window.onload = function () {
+    callApi('getAdministrations', {}, fillAdmins);
+  };
+
+  function showMode(mode) {
+    document.getElementById('modeChoice').classList.add('hidden');
+    if (mode === 'code') document.getElementById('codeMode').classList.remove('hidden');
+    if (mode === 'new') document.getElementById('newMode').classList.remove('hidden');
+  }
+
+  function backToChoice() {
+    document.getElementById('codeMode').classList.add('hidden');
+    document.getElementById('newMode').classList.add('hidden');
+    document.getElementById('codeError').innerText = '';
+    document.getElementById('newSchoolResult').innerText = '';
+    document.getElementById('modeChoice').classList.remove('hidden');
+  }
+
+  function fillAdmins(list) {
+    const sel = document.getElementById('adminSelect');
+    sel.innerHTML = '<option value="">اختر الإدارة</option>';
+    list.forEach(function (a) {
+      sel.innerHTML += '<option value="' + a.code + '">' + a.name + '</option>';
+    });
+  }
+
+  document.getElementById('adminSelect').addEventListener('change', function () {
+    callApi('getStages', {}, fillStages);
+  });
+
+  function fillStages(list) {
+    const sel = document.getElementById('stageSelect');
+    sel.innerHTML = '<option value="">اختر المرحلة</option>';
+    list.forEach(function (s) {
+      sel.innerHTML += '<option value="' + s.code + '">' + s.name + '</option>';
+    });
+  }
+
+  function loginByCode() {
+    const code = document.getElementById('schoolCodeInput').value.trim();
+    document.getElementById('codeError').innerText = '';
+    if (!code) { alert('اكتب كود المدرسة'); return; }
+    callApi('getSchoolByCode', {code: code}, function (school) {
+      if (!school) {
+        document.getElementById('codeError').innerText = 'الكود غير صحيح، تأكد منه أو سجل مدرسة جديدة';
+      } else {
+        onSchoolReady(school);
+      }
+    });
+  }
+
+  function registerSchool() {
+    const admin = document.getElementById('adminSelect').value;
+    const stage = document.getElementById('stageSelect').value;
+    const name = document.getElementById('newSchoolName').value.trim();
+    if (!admin || !stage || !name) { alert('املأ كل الحقول'); return; }
+    callApi('registerNewSchool', {adminCode: admin, stageCode: stage, schoolName: name}, function (school) {
+      document.getElementById('newSchoolResult').innerHTML =
+        'تم التسجيل! كود مدرستك هو <b>' + school.code + '</b><br>احتفظ به لتسجيل الدخول في المرات القادمة';
+      const btn = document.createElement('button');
+      btn.innerText = 'متابعة للوحة المدرسة';
+      btn.onclick = function () { onSchoolReady(school); };
+      document.getElementById('newSchoolResult').appendChild(btn);
+    });
+  }
+
+  function onSchoolReady(school) {
+    window.currentSchoolCode = school.code;
+    document.getElementById('modeChoice').classList.add('hidden');
+    document.getElementById('codeMode').classList.add('hidden');
+    document.getElementById('newMode').classList.add('hidden');
+    document.getElementById('schoolInfo').innerText = 'المدرسة: ' + school.name + ' (كود ' + school.code + ')';
+    document.getElementById('dashboard').classList.remove('hidden');
+
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById('attDate').value = today;
+    document.getElementById('actDate').value = today;
+    document.getElementById('probDate').value = today;
+
+    loadStudents();
+  }
+
+  function loadStudents() {
+    callApi('getStudentsBySchoolCode', {schoolCode: window.currentSchoolCode}, function (list) {
+      fillAttendanceTable(list);
+      fillStudentSelect('actStudentSelect', list);
+      fillStudentSelect('probStudentSelect', list);
+    });
+  }
+
+  function addStudent() {
+    const name = document.getElementById('newStudentName').value.trim();
+    if (!name) { alert('اكتب اسم الطالب المعلم'); return; }
+    callApi('registerStudent', {schoolCode: window.currentSchoolCode, studentName: name}, function () {
+      document.getElementById('newStudentName').value = '';
+      loadStudents();
+    });
+  }
+
+  function switchTab(tab) {
+    document.getElementById('tabAtt').classList.toggle('hidden', tab !== 'att');
+    document.getElementById('tabAct').classList.toggle('hidden', tab !== 'act');
+    document.getElementById('tabProb').classList.toggle('hidden', tab !== 'prob');
+    document.getElementById('tabBtnAtt').classList.toggle('active', tab === 'att');
+    document.getElementById('tabBtnAct').classList.toggle('active', tab === 'act');
+    document.getElementById('tabBtnProb').classList.toggle('active', tab === 'prob');
+  }
+
+  function fillAttendanceTable(list) {
+    const tbody = document.querySelector('#studentsTable tbody');
+    tbody.innerHTML = '';
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3">لا يوجد طلاب معلمين مسجلين على هذه المدرسة بعد</td></tr>';
+      return;
+    }
+    list.forEach(function (st) {
+      const tr = document.createElement('tr');
+      tr.dataset.code = st.code;
+      tr.dataset.name = st.name;
+      tr.innerHTML =
+        '<td>' + st.name + '</td>' +
+        '<td><select class="statusSelect">' +
+          '<option value="حضور">حضور</option>' +
+          '<option value="غياب">غياب</option>' +
+          '<option value="تأخير">تأخير</option>' +
+          '<option value="إذن">إذن</option>' +
+        '</select></td>' +
+        '<td><input type="text" class="noteInput" placeholder="اختياري"></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function fillStudentSelect(selectId, list) {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = '';
+    if (list.length === 0) {
+      sel.innerHTML = '<option value="">لا يوجد طلاب معلمين بعد</option>';
+      return;
+    }
+    list.forEach(function (st) {
+      sel.innerHTML += '<option value="' + st.code + '" data-name="' + st.name + '">' + st.name + '</option>';
+    });
+  }
+
+  function submitAttendance() {
+    const date = document.getElementById('attDate').value;
+    if (!date) { alert('اختر التاريخ'); return; }
+
+    const rows = document.querySelectorAll('#studentsTable tbody tr');
+    const records = [];
+    rows.forEach(function (row) {
+      if (!row.dataset.code) return;
+      records.push({
+        code: row.dataset.code,
+        name: row.dataset.name,
+        status: row.querySelector('.statusSelect').value,
+        note: row.querySelector('.noteInput').value
+      });
+    });
+
+    if (records.length === 0) { alert('لا يوجد طلاب لتسجيلهم'); return; }
+
+    callApi('submitAttendanceBatch', {date: date, records: JSON.stringify(records)}, function (res) {
+      document.getElementById('doneMsgAtt').innerText = 'تم تسجيل حضور ' + res.count + ' طالب معلم بنجاح';
+    });
+  }
+
+  function submitActivityForm() {
+    const sel = document.getElementById('actStudentSelect');
+    if (!sel.value) { alert('اختر الطالب المعلم'); return; }
+    const date = document.getElementById('actDate').value;
+    const type = document.getElementById('actType').value;
+    const desc = document.getElementById('actDesc').value;
+    const name = sel.selectedOptions[0].dataset.name;
+
+    callApi('submitActivity', {date: date, studentCode: sel.value, studentName: name, type: type, description: desc}, function () {
+      document.getElementById('doneMsgAct').innerText = 'تم تسجيل المشاركة لـ ' + name;
+      document.getElementById('actDesc').value = '';
+    });
+  }
+
+  function submitProblemForm() {
+    const sel = document.getElementById('probStudentSelect');
+    if (!sel.value) { alert('اختر الطالب المعلم'); return; }
+    const date = document.getElementById('probDate').value;
+    const type = document.getElementById('probType').value;
+    const severity = document.getElementById('probSeverity').value;
+    const desc = document.getElementById('probDesc').value;
+    const name = sel.selectedOptions[0].dataset.name;
+
+    callApi('submitProblem', {date: date, studentCode: sel.value, studentName: name, type: type, severity: severity, description: desc}, function () {
+      document.getElementById('doneMsgProb').innerText = 'تم تسجيل المشكلة لـ ' + name;
+      document.getElementById('probDesc').value = '';
+    });
+  }
+
+  function exportPortfolio() {
+    document.getElementById('exportMsg').innerText = 'جاري التصدير...';
+    callApi('exportSchoolPortfolio', {schoolCode: window.currentSchoolCode}, function (res) {
+      document.getElementById('exportMsg').innerHTML =
+        'تم إنشاء الملف: <a href="' + res.url + '" target="_blank">' + res.name + '</a>';
+    });
+  }
+</script>
+</body>
+</html>
