@@ -157,6 +157,8 @@
     <select id="stageSelect"><option value="">اختر الإدارة أولًا</option></select>
     <label>اسم المدرسة</label>
     <input type="text" id="newSchoolName" placeholder="اكتب اسم المدرسة كاملًا">
+    <label>مادة التخصص</label>
+    <select id="specSelect"><option value="">جاري التحميل...</option></select>
     <label>اسم المعلم المتعاون المقيم</label>
     <input type="text" id="newTeacherName" placeholder="اسمك بالكامل">
     <label>رقم هاتفه</label>
@@ -254,7 +256,7 @@
 </div>
 
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbyLiFdRjnzkF41ILDyL8AOceL9rnIDQDYkEEHE5qJgVQe5u6LVh753j-0qt_FNwTKRMLA/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbxnZLhPB1FV43yG66HiZLWjhoVeRq3tTwrZy01sivFw9uM4XkNhLb4tTiyZOgJ6jcwJMw/exec';
 
   window.currentSchoolCode = null;
 
@@ -277,7 +279,14 @@
 
   window.onload = function () {
     callApi('getAdministrations', {}, fillAdmins);
+    callApi('getSpecializations', {}, fillSpecializations);
   };
+
+  function fillSpecializations(list) {
+    const sel = document.getElementById('specSelect');
+    sel.innerHTML = '<option value="">اختر التخصص</option>';
+    list.forEach(function (s) { sel.innerHTML += '<option value="' + s + '">' + s + '</option>'; });
+  }
 
   function showMode(mode) {
     document.getElementById('modeChoice').classList.add('hidden');
@@ -323,10 +332,11 @@
     const admin = document.getElementById('adminSelect').value;
     const stage = document.getElementById('stageSelect').value;
     const name = document.getElementById('newSchoolName').value.trim();
+    const specialization = document.getElementById('specSelect').value;
     const teacherName = document.getElementById('newTeacherName').value.trim();
     const teacherPhone = document.getElementById('newTeacherPhone').value.trim();
-    if (!admin || !stage || !name || !teacherName || !teacherPhone) { alert('املأ كل الحقول'); return; }
-    callApi('registerNewSchool', {adminCode: admin, stageCode: stage, schoolName: name, teacherName: teacherName, teacherPhone: teacherPhone}, function (school) {
+    if (!admin || !stage || !name || !specialization || !teacherName || !teacherPhone) { alert('املأ كل الحقول'); return; }
+    callApi('registerNewSchool', {adminCode: admin, stageCode: stage, schoolName: name, specialization: specialization, teacherName: teacherName, teacherPhone: teacherPhone}, function (school) {
       document.getElementById('newSchoolResult').innerHTML =
         'تم التسجيل! كود مدرستك هو <b>' + school.code + '</b><br>احتفظ به لتسجيل الدخول في المرات القادمة';
       const btn = document.createElement('button');
@@ -342,7 +352,8 @@
     document.getElementById('modeChoice').classList.add('hidden');
     document.getElementById('codeMode').classList.add('hidden');
     document.getElementById('newMode').classList.add('hidden');
-    document.getElementById('schoolLine').textContent = school.name + ' · كود ' + school.code;
+    document.getElementById('schoolLine').textContent =
+      school.name + (school.specialization ? ' - ' + school.specialization : '') + ' · كود ' + school.code;
     document.getElementById('schoolLine').classList.remove('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
     document.getElementById('tabbar').classList.remove('hidden');
