@@ -157,6 +157,10 @@
     <select id="stageSelect"><option value="">اختر الإدارة أولًا</option></select>
     <label>اسم المدرسة</label>
     <input type="text" id="newSchoolName" placeholder="اكتب اسم المدرسة كاملًا">
+    <label>اسم المعلم المتعاون المقيم</label>
+    <input type="text" id="newTeacherName" placeholder="اسمك بالكامل">
+    <label>رقم هاتفه</label>
+    <input type="tel" id="newTeacherPhone" placeholder="01xxxxxxxxx">
     <button class="primary" onclick="registerSchool()">تسجيل والحصول على الكود</button>
     <div class="msg" id="newSchoolResult"></div>
     <button class="ghost" onclick="backToChoice()">رجوع</button>
@@ -250,7 +254,7 @@
 </div>
 
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycby8vUZmb7e4LcNnvkfFpHHdrYd_bgvcD7jeoTyS8PdNMRFtr8g85BLCbCHr30Ci3D7Nlg/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyLiFdRjnzkF41ILDyL8AOceL9rnIDQDYkEEHE5qJgVQe5u6LVh753j-0qt_FNwTKRMLA/exec';
 
   window.currentSchoolCode = null;
 
@@ -319,8 +323,10 @@
     const admin = document.getElementById('adminSelect').value;
     const stage = document.getElementById('stageSelect').value;
     const name = document.getElementById('newSchoolName').value.trim();
-    if (!admin || !stage || !name) { alert('املأ كل الحقول'); return; }
-    callApi('registerNewSchool', {adminCode: admin, stageCode: stage, schoolName: name}, function (school) {
+    const teacherName = document.getElementById('newTeacherName').value.trim();
+    const teacherPhone = document.getElementById('newTeacherPhone').value.trim();
+    if (!admin || !stage || !name || !teacherName || !teacherPhone) { alert('املأ كل الحقول'); return; }
+    callApi('registerNewSchool', {adminCode: admin, stageCode: stage, schoolName: name, teacherName: teacherName, teacherPhone: teacherPhone}, function (school) {
       document.getElementById('newSchoolResult').innerHTML =
         'تم التسجيل! كود مدرستك هو <b>' + school.code + '</b><br>احتفظ به لتسجيل الدخول في المرات القادمة';
       const btn = document.createElement('button');
