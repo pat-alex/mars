@@ -26,6 +26,7 @@
     color: var(--ink);
     font-family: 'Cairo', Tahoma, Arial, sans-serif;
     direction: rtl;
+    overscroll-behavior-y: contain;
   }
   body { padding-bottom: 90px; }
   .container { max-width: 480px; margin: 0 auto; padding: 0 16px 24px; }
@@ -126,6 +127,9 @@
 <div class="topbar">
   <h1>متابعة التربية العملية</h1>
   <div class="schoolLine hidden" id="schoolLine"></div>
+  <div class="hidden" id="switchSchoolWrap" style="margin-top:4px;">
+    <a href="#" onclick="logoutSchool(); return false;" style="color:#fff; opacity:.75; font-size:12px; text-decoration:underline;">تغيير المدرسة</a>
+  </div>
 </div>
 
 <div class="container">
@@ -280,7 +284,24 @@
   window.onload = function () {
     callApi('getAdministrations', {}, fillAdmins);
     callApi('getSpecializations', {}, fillSpecializations);
+
+    const savedCode = localStorage.getItem('schoolCode');
+    if (savedCode) {
+      callApi('getSchoolByCode', {code: savedCode}, function (school) {
+        if (school) { onSchoolReady(school); }
+      });
+    }
   };
+
+  function logoutSchool() {
+    localStorage.removeItem('schoolCode');
+    window.currentSchoolCode = null;
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('tabbar').classList.add('hidden');
+    document.getElementById('schoolLine').classList.add('hidden');
+    document.getElementById('switchSchoolWrap').classList.add('hidden');
+    document.getElementById('modeChoice').classList.remove('hidden');
+  }
 
   function fillSpecializations(list) {
     const sel = document.getElementById('specSelect');
@@ -349,12 +370,14 @@
 
   function onSchoolReady(school) {
     window.currentSchoolCode = school.code;
+    localStorage.setItem('schoolCode', school.code);
     document.getElementById('modeChoice').classList.add('hidden');
     document.getElementById('codeMode').classList.add('hidden');
     document.getElementById('newMode').classList.add('hidden');
     document.getElementById('schoolLine').textContent =
       school.name + (school.specialization ? ' - ' + school.specialization : '') + ' · كود ' + school.code;
     document.getElementById('schoolLine').classList.remove('hidden');
+    document.getElementById('switchSchoolWrap').classList.remove('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
     document.getElementById('tabbar').classList.remove('hidden');
 
