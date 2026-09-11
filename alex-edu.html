@@ -37,7 +37,26 @@
     padding: 14px 16px; text-align: center;
   }
   .topbar h1 { font-size: 17px; font-weight: 700; margin: 0; }
-  .topbar .schoolLine { font-size: 13px; opacity: .85; margin-top: 4px; }
+  .topbar .schoolLine { font-size: 15px; font-weight: 700; margin-top: 6px; }
+  .schoolCodeBadge {
+    display: inline-block; margin-top: 8px;
+    background: var(--gold); color: #1E4638;
+    font-size: 20px; font-weight: 800; letter-spacing: 2px;
+    padding: 6px 18px; border-radius: 8px;
+  }
+  .switchLink {
+    display: inline-block; margin-top: 10px;
+    color: #fff; font-size: 13px; font-weight: 700;
+    text-decoration: underline;
+  }
+  .codeResultBox { background: var(--card); border: 2px solid var(--gold); border-radius: 12px; padding: 18px; text-align: center; margin-top: 12px; }
+  .codeResultBox .label { font-size: 13px; color: #5b6259; margin-bottom: 8px; font-weight: 600; }
+  .codeResultBox .bigCode { font-size: 32px; font-weight: 800; letter-spacing: 3px; color: var(--board); }
+  .codeResultBox .hint { font-size: 12px; color: var(--brick); margin-top: 10px; font-weight: 700; }
+
+  .obsItem { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-top: 10px; }
+  .obsItemText { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+  .pill.selected { background: var(--board); border-color: var(--board); color: #fff; }
 
   .entryWrap { padding: 22px 0 4px; }
   .entryWrap .lead { font-size: 14px; color: #5b6259; margin: 0 0 16px; text-align: center; }
@@ -127,8 +146,9 @@
 <div class="topbar">
   <h1>متابعة التربية العملية</h1>
   <div class="schoolLine hidden" id="schoolLine"></div>
+  <div class="schoolCodeBadge hidden" id="schoolCodeBadge"></div>
   <div class="hidden" id="switchSchoolWrap" style="margin-top:4px;">
-    <a href="#" onclick="logoutSchool(); return false;" style="color:#fff; opacity:.75; font-size:12px; text-decoration:underline;">تغيير المدرسة</a>
+    <a href="#" onclick="logoutSchool(); return false;" class="switchLink">تغيير المدرسة</a>
   </div>
 </div>
 
@@ -233,6 +253,17 @@
       <p class="msg" id="doneMsgProb"></p>
     </div>
 
+    <div id="tabObs" class="tabPanel">
+      <h2 class="pageTitle">بطاقة ملاحظة الأداء</h2>
+      <label>الطالب المعلم</label>
+      <select id="obsStudentSelect"></select>
+      <label>التاريخ</label>
+      <input type="date" id="obsDate">
+      <div id="obsItemsList"></div>
+      <button class="primary" onclick="submitObservationForm()">إرسال بطاقة الملاحظة</button>
+      <p class="msg" id="doneMsgObs"></p>
+    </div>
+
     <details class="box" style="margin-bottom:8px;">
       <summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>تصدير بورتفوليو المدرسة</summary>
       <div style="margin-top:10px;">
@@ -257,10 +288,14 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><path d="M12 9v5M12 17h.01"/></svg>
     <span>المشاكل</span>
   </button>
+  <button id="tabBtnObs" onclick="switchTab('obs')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><path d="M9 11h6M9 15h6"/></svg>
+    <span>الملاحظة</span>
+  </button>
 </div>
 
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbywTnOhYJUEEij-kqUlibuQ0qdqxi54joKTifPTmC-YHCxt7phPIEUhsFINdGrTpBIS/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyiPcZaM6b_gd8CFlt_ApjTwVo4UlcMP1vKAntFf7qJxqrRk9kdIDXvQVF1deYMDmf0/exec';
 
   window.currentSchoolCode = null;
 
@@ -296,6 +331,7 @@
   window.onload = function () {
     callApi('getAdministrations', {}, fillAdmins);
     callApi('getSpecializations', {}, fillSpecializations);
+    callApi('getObservationItems', {}, fillObservationItems);
 
     const savedCode = localStorage.getItem('schoolCode');
     if (savedCode) {
@@ -304,6 +340,37 @@
       });
     }
   };
+
+  function fillObservationItems(list) {
+    window.observationItems = list;
+    const wrap = document.getElementById('obsItemsList');
+    wrap.innerHTML = '';
+    list.forEach(function (text) {
+      const item = document.createElement('div');
+      item.className = 'obsItem';
+      item.dataset.score = '';
+      const textDiv = document.createElement('div');
+      textDiv.className = 'obsItemText';
+      textDiv.textContent = text;
+      item.appendChild(textDiv);
+      const pillGroup = document.createElement('div');
+      pillGroup.className = 'pillGroup';
+      [1, 2, 3, 4].forEach(function (val) {
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.className = 'pill';
+        pill.textContent = val;
+        pill.onclick = function () {
+          item.dataset.score = val;
+          pillGroup.querySelectorAll('.pill').forEach(function (p) { p.className = 'pill'; });
+          pill.className = 'pill selected';
+        };
+        pillGroup.appendChild(pill);
+      });
+      item.appendChild(pillGroup);
+      wrap.appendChild(item);
+    });
+  }
 
   function logoutSchool() {
     localStorage.removeItem('schoolCode');
@@ -372,7 +439,11 @@
     document.getElementById('newSchoolResult').innerText = 'جاري التسجيل...';
     callApi('registerNewSchool', {adminCode: admin, stageCode: stage, schoolName: name, specialization: specialization, teacherName: teacherName, teacherPhone: teacherPhone}, function (school) {
       document.getElementById('newSchoolResult').innerHTML =
-        'تم التسجيل! كود مدرستك هو <b>' + school.code + '</b><br>احتفظ به لتسجيل الدخول في المرات القادمة';
+        '<div class="codeResultBox">' +
+          '<div class="label">كود مدرستك هو</div>' +
+          '<div class="bigCode">' + school.code + '</div>' +
+          '<div class="hint">احتفظ بالكود ده! هتحتاجه في كل مرة تدخل بعد كده</div>' +
+        '</div>';
       const btn = document.createElement('button');
       btn.className = 'primary';
       btn.innerText = 'متابعة للوحة المدرسة';
@@ -388,8 +459,10 @@
     document.getElementById('codeMode').classList.add('hidden');
     document.getElementById('newMode').classList.add('hidden');
     document.getElementById('schoolLine').textContent =
-      school.name + (school.specialization ? ' - ' + school.specialization : '') + ' · كود ' + school.code;
+      school.name + (school.specialization ? ' - ' + school.specialization : '');
     document.getElementById('schoolLine').classList.remove('hidden');
+    document.getElementById('schoolCodeBadge').textContent = school.code;
+    document.getElementById('schoolCodeBadge').classList.remove('hidden');
     document.getElementById('switchSchoolWrap').classList.remove('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
     document.getElementById('tabbar').classList.remove('hidden');
@@ -398,6 +471,7 @@
     document.getElementById('attDate').value = today;
     document.getElementById('actDate').value = today;
     document.getElementById('probDate').value = today;
+    document.getElementById('obsDate').value = today;
 
     loadStudents();
   }
@@ -407,6 +481,7 @@
       fillAttendanceTable(list);
       fillStudentSelect('actStudentSelect', list);
       fillStudentSelect('probStudentSelect', list);
+      fillStudentSelect('obsStudentSelect', list);
     });
   }
 
@@ -423,9 +498,11 @@
     document.getElementById('tabAtt').classList.toggle('active', tab === 'att');
     document.getElementById('tabAct').classList.toggle('active', tab === 'act');
     document.getElementById('tabProb').classList.toggle('active', tab === 'prob');
+    document.getElementById('tabObs').classList.toggle('active', tab === 'obs');
     document.getElementById('tabBtnAtt').classList.toggle('active', tab === 'att');
     document.getElementById('tabBtnAct').classList.toggle('active', tab === 'act');
     document.getElementById('tabBtnProb').classList.toggle('active', tab === 'prob');
+    document.getElementById('tabBtnObs').classList.toggle('active', tab === 'obs');
   }
 
   function fillAttendanceTable(list) {
@@ -529,6 +606,28 @@
     callApi('submitProblem', {date: date, studentCode: sel.value, studentName: name, type: type, severity: severity, description: desc}, function () {
       document.getElementById('doneMsgProb').innerText = 'تم تسجيل المشكلة لـ ' + name;
       document.getElementById('probDesc').value = '';
+    });
+  }
+
+  function submitObservationForm() {
+    const sel = document.getElementById('obsStudentSelect');
+    if (!sel.value) { alert('اختر الطالب المعلم'); return; }
+    const date = document.getElementById('obsDate').value;
+    if (!date) { alert('اختر التاريخ'); return; }
+    const name = sel.selectedOptions[0].dataset.name;
+
+    const items = document.querySelectorAll('#obsItemsList .obsItem');
+    const scores = [];
+    let missing = false;
+    items.forEach(function (item) {
+      if (!item.dataset.score) missing = true;
+      scores.push(item.dataset.score || '');
+    });
+    if (missing) { alert('من فضلك قيّم كل البنود قبل الإرسال'); return; }
+
+    document.getElementById('doneMsgObs').innerText = 'جاري الحفظ...';
+    callApi('submitObservation', {date: date, studentCode: sel.value, studentName: name, scores: JSON.stringify(scores)}, function () {
+      document.getElementById('doneMsgObs').innerText = 'تم إرسال بطاقة الملاحظة لـ ' + name;
     });
   }
 
