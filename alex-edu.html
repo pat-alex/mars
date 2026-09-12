@@ -168,6 +168,10 @@
       <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg></div>
       <div class="txt"><strong>أنا طالب معلم</strong><span>تسجيل حضور وانصراف بالموقع</span></div>
     </div>
+    <div class="choiceCard" onclick="showMode('college')">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+      <div class="txt"><strong>لوحة متابعة الكلية</strong><span>بحث بكود الطالب وتصور كامل عنه</span></div>
+    </div>
   </div>
 
   <div id="codeMode" class="entryWrap hidden">
@@ -202,6 +206,22 @@
     <button class="primary" onclick="loginByStudentCode()">دخول</button>
     <p class="error" id="studentCodeError"></p>
     <button class="ghost" onclick="backToChoice()">رجوع</button>
+  </div>
+
+  <div id="collegeMode" class="entryWrap hidden">
+    <label>كود الكلية</label>
+    <input type="text" id="collegeCodeInput" placeholder="كود الدخول الخاص بالكلية">
+    <label>كود الطالب المعلم</label>
+    <input type="text" id="collegeStudentCodeInput" placeholder="مثال: 0102009-01" inputmode="numeric">
+    <button class="primary" onclick="searchStudentProfile()">بحث</button>
+    <p class="error" id="collegeSearchError"></p>
+    <button class="ghost" onclick="backToChoice()">رجوع</button>
+  </div>
+
+  <div id="collegeProfile" class="hidden">
+    <div id="collegeProfileContent"></div>
+    <button class="primary" onclick="backToCollegeSearch()">بحث عن طالب تاني</button>
+    <button class="ghost" onclick="logoutCollege()">خروج</button>
   </div>
 
   <div id="studentPanel" class="hidden">
@@ -324,7 +344,7 @@
 </div>
 
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbxnhAGnABEGQTJRT-SdYLwENBu-AOj0Qjgu9iGN7Lxfm5dvDJcliILUHX9jA-6dcVc5/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbw9TE5c76reYDRaFA0DPesnpWKWdhKfNhT5kBHqzVbFAEHfrD4-T00ovqFP1czlBw2y/exec';
 
   window.currentSchoolCode = null;
 
@@ -429,15 +449,22 @@
     if (mode === 'code') document.getElementById('codeMode').classList.remove('hidden');
     if (mode === 'new') document.getElementById('newMode').classList.remove('hidden');
     if (mode === 'student') document.getElementById('studentMode').classList.remove('hidden');
+    if (mode === 'college') {
+      document.getElementById('collegeMode').classList.remove('hidden');
+      const savedCollegeCode = localStorage.getItem('collegeCode');
+      if (savedCollegeCode) document.getElementById('collegeCodeInput').value = savedCollegeCode;
+    }
   }
 
   function backToChoice() {
     document.getElementById('codeMode').classList.add('hidden');
     document.getElementById('newMode').classList.add('hidden');
     document.getElementById('studentMode').classList.add('hidden');
+    document.getElementById('collegeMode').classList.add('hidden');
     document.getElementById('codeError').innerText = '';
     document.getElementById('newSchoolResult').innerText = '';
     document.getElementById('studentCodeError').innerText = '';
+    document.getElementById('collegeSearchError').innerText = '';
     document.getElementById('modeChoice').classList.remove('hidden');
   }
 
@@ -584,6 +611,108 @@
       else if (err.code === 2) msgEl.innerText = 'تعذر تحديد الموقع حاليًا، جرب من مكان تاني';
       else msgEl.innerText = 'استغرق تحديد الموقع وقت طويل، جرب تاني';
     }, {enableHighAccuracy: true, timeout: 15000, maximumAge: 0});
+  }
+
+  function fmtVal(v) {
+    if (v === null || v === undefined || v === '') return '-';
+    if (typeof v === 'string' && v.indexOf('T') > -1 && !isNaN(Date.parse(v))) {
+      return new Date(v).toLocaleString('ar-EG');
+    }
+    return v;
+  }
+
+  function buildSection(title, rows, columns) {
+    if (!rows || rows.length === 0) {
+      return '<details class="box"><summary>' + title + ' (0)</summary><p class="empty">لا يوجد بيانات</p></details>';
+    }
+    let html = '<details class="box" open><summary>' + title + ' (' + rows.length + ')</summary>' +
+      '<table style="width:100%; border-collapse:collapse; margin-top:8px; font-size:13px;"><tr>';
+    columns.forEach(function (c) { html += '<th style="text-align:right; padding:6px 4px; border-bottom:1px solid #ddd;">' + c.label + '</th>'; });
+    html += '</tr>';
+    rows.forEach(function (r) {
+      html += '<tr>';
+      columns.forEach(function (c) { html += '<td style="padding:6px 4px; border-bottom:1px solid #eee;">' + fmtVal(r[c.key]) + '</td>'; });
+      html += '</tr>';
+    });
+    html += '</table></details>';
+    return html;
+  }
+
+  function buildObservationsSection(rows) {
+    if (!rows || rows.length === 0) {
+      return '<details class="box"><summary>بطاقة الملاحظة (0)</summary><p class="empty">لا يوجد بيانات</p></details>';
+    }
+    let html = '<details class="box" open><summary>بطاقة الملاحظة (' + rows.length + ')</summary>';
+    rows.forEach(function (r) {
+      html += '<div style="border-bottom:1px solid #eee; padding:8px 0;">' +
+        '<div style="font-weight:700; margin-bottom:4px;">' + fmtVal(r['التاريخ']) + '</div>';
+      Object.keys(r).forEach(function (k) {
+        if (k === 'اسم_المدرسة' || k === 'اسم_المعلم_المتعاون_المقيم' || k === 'التاريخ' || k === 'اسم_الطالب_المعلم') return;
+        if (r[k] === '' || r[k] === null || r[k] === undefined) return;
+        html += '<div style="font-size:13px; color:#5b6259;">' + k + ': ' + fmtVal(r[k]) + '</div>';
+      });
+      html += '</div>';
+    });
+    html += '</details>';
+    return html;
+  }
+
+  function renderStudentProfile(profile) {
+    const s = profile.student;
+    let html = '<div class="codeResultBox" style="margin-top:0; text-align:right;">' +
+      '<div class="label">بيانات الطالب المعلم</div>' +
+      '<div class="bigCode" style="font-size:20px;">' + s.name + '</div>' +
+      '<div class="hint" style="color:var(--slate); font-weight:400;">الكود: ' + s.code +
+      '<br>المدرسة: ' + s.schoolName + (s.specialization ? ' - ' + s.specialization : '') +
+      '<br>المعلم المتعاون: ' + (s.teacherName || '-') + (s.teacherPhone ? ' - ' + s.teacherPhone : '') +
+      '</div></div>';
+
+    html += buildSection('سجل الحضور', profile.attendance, [
+      {key: 'التاريخ', label: 'التاريخ'}, {key: 'الحالة', label: 'الحالة'}, {key: 'ملاحظات', label: 'ملاحظات'}
+    ]);
+    html += buildSection('سجل المشاركات', profile.activities, [
+      {key: 'التاريخ', label: 'التاريخ'}, {key: 'نوع_المشاركة', label: 'النوع'}, {key: 'الوصف', label: 'الوصف'}
+    ]);
+    html += buildSection('سجل المشاكل', profile.problems, [
+      {key: 'التاريخ', label: 'التاريخ'}, {key: 'نوع_المشكلة', label: 'النوع'}, {key: 'الخطورة', label: 'الخطورة'},
+      {key: 'الحالة', label: 'الحالة'}, {key: 'الوصف', label: 'الوصف'}
+    ]);
+    html += buildSection('سجل حضور الموقع', profile.locationLog, [
+      {key: 'التاريخ', label: 'التاريخ'}, {key: 'نوع_التسجيل', label: 'النوع'}, {key: 'الحالة', label: 'الحالة'},
+      {key: 'المسافة_عن_الموقع_المرجعي_متر', label: 'المسافة (م)'}
+    ]);
+    html += buildObservationsSection(profile.observations);
+
+    document.getElementById('collegeProfileContent').innerHTML = html;
+  }
+
+  function searchStudentProfile() {
+    const collegeCode = document.getElementById('collegeCodeInput').value.trim();
+    const studentCode = document.getElementById('collegeStudentCodeInput').value.trim();
+    document.getElementById('collegeSearchError').innerText = '';
+    if (!collegeCode) { alert('اكتب كود الكلية'); return; }
+    if (!studentCode) { alert('اكتب كود الطالب المعلم'); return; }
+    callApi('getStudentFullProfile', {collegeCode: collegeCode, studentCode: studentCode}, function (profile) {
+      localStorage.setItem('collegeCode', collegeCode);
+      document.getElementById('collegeMode').classList.add('hidden');
+      renderStudentProfile(profile);
+      document.getElementById('collegeProfile').classList.remove('hidden');
+    });
+  }
+
+  function backToCollegeSearch() {
+    document.getElementById('collegeProfile').classList.add('hidden');
+    document.getElementById('collegeStudentCodeInput').value = '';
+    document.getElementById('collegeMode').classList.remove('hidden');
+  }
+
+  function logoutCollege() {
+    localStorage.removeItem('collegeCode');
+    document.getElementById('collegeProfile').classList.add('hidden');
+    document.getElementById('collegeMode').classList.add('hidden');
+    document.getElementById('collegeCodeInput').value = '';
+    document.getElementById('collegeStudentCodeInput').value = '';
+    document.getElementById('modeChoice').classList.remove('hidden');
   }
 
   function loadStudents() {
