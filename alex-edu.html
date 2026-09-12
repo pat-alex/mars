@@ -176,7 +176,7 @@
 
   <div id="codeMode" class="entryWrap hidden">
     <label>كود المدرسة</label>
-    <input type="text" id="schoolCodeInput" placeholder="مثال: 0102009" inputmode="numeric">
+    <input type="text" id="schoolCodeInput" placeholder="مثال: 1102009" inputmode="numeric">
     <label>كلمة المرور</label>
     <input type="password" id="schoolPasswordInput" placeholder="كلمة المرور بتاعتك">
     <button class="primary" onclick="loginByCode()">دخول</button>
@@ -206,7 +206,7 @@
 
   <div id="studentMode" class="entryWrap hidden">
     <label>كود الطالب المعلم</label>
-    <input type="text" id="studentCodeInput" placeholder="مثال: 0102009-01" inputmode="numeric">
+    <input type="text" id="studentCodeInput" placeholder="مثال: 110200901" inputmode="numeric">
     <button class="primary" onclick="loginByStudentCode()">دخول</button>
     <p class="error" id="studentCodeError"></p>
     <button class="ghost" onclick="backToChoice()">رجوع</button>
@@ -216,7 +216,7 @@
     <label>كود الكلية</label>
     <input type="text" id="collegeCodeInput" placeholder="كود الدخول الخاص بالكلية">
     <label>كود الطالب المعلم</label>
-    <input type="text" id="collegeStudentCodeInput" placeholder="مثال: 0102009-01" inputmode="numeric">
+    <input type="text" id="collegeStudentCodeInput" placeholder="مثال: 110200901" inputmode="numeric">
     <button class="primary" onclick="searchStudentProfile()">بحث</button>
     <p class="error" id="collegeSearchError"></p>
     <button class="ghost" onclick="backToChoice()">رجوع</button>
@@ -348,7 +348,7 @@
 </div>
 
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbwQjYNGtx4BZS7OG4O0J-4gRtnhpH68f85M4UklEZRAnpMuqoCpw5xIJ0x_V5zabRY/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyXuW0CD7ODoiITiR3chUKIQkLNjDWrmuU9OR5iv8QJznm3zpnUbmGb9lj602KChbKc/exec';
 
   window.currentSchoolCode = null;
 
