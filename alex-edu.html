@@ -164,6 +164,10 @@
       <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
       <div class="txt"><strong>تسجيل مدرسة جديدة</strong><span>أول مرة أستخدم النظام</span></div>
     </div>
+    <div class="choiceCard" onclick="showMode('student')">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg></div>
+      <div class="txt"><strong>أنا طالب معلم</strong><span>تسجيل حضور وانصراف بالموقع</span></div>
+    </div>
   </div>
 
   <div id="codeMode" class="entryWrap hidden">
@@ -192,6 +196,30 @@
     <button class="ghost" onclick="backToChoice()">رجوع</button>
   </div>
 
+  <div id="studentMode" class="entryWrap hidden">
+    <label>كود الطالب المعلم</label>
+    <input type="text" id="studentCodeInput" placeholder="مثال: 0102009-01" inputmode="numeric">
+    <button class="primary" onclick="loginByStudentCode()">دخول</button>
+    <p class="error" id="studentCodeError"></p>
+    <button class="ghost" onclick="backToChoice()">رجوع</button>
+  </div>
+
+  <div id="studentPanel" class="hidden">
+    <div class="codeResultBox" style="margin-top:0;">
+      <div class="label">الطالب المعلم</div>
+      <div class="bigCode" id="studentNameDisplay" style="font-size:20px;"></div>
+      <div class="hint" id="studentSchoolDisplay" style="color:var(--slate);"></div>
+    </div>
+
+    <button class="primary" onclick="requestLocationAndSubmit('حضور')">تسجيل الحضور بالموقع</button>
+    <button class="primary" style="background:var(--brick);" onclick="requestLocationAndSubmit('انصراف')">تسجيل الانصراف بالموقع</button>
+    <p class="msg" id="studentActionMsg"></p>
+    <p style="text-align:center; font-size:12px; color:#7a8073; margin-top:16px; line-height:1.6;">
+      أول مرة تسجل فيها، هيتسجل موقعك الحالي كموقع مرجعي لمدرستك. بعد كده لازم تكون قريب من نفس الموقع (في حدود 300 متر تقريبًا) عشان تقدر تسجل حضورك أو انصرافك.
+    </p>
+    <button class="ghost" onclick="logoutStudent()">تسجيل خروج</button>
+  </div>
+
   <div id="dashboard" class="hidden">
 
     <details class="box">
@@ -200,6 +228,7 @@
         <input type="text" id="newStudentName" placeholder="اسم الطالب المعلم">
         <button class="primary" onclick="addStudent()">إضافة</button>
       </div>
+      <div class="msg" id="newStudentResult"></div>
     </details>
 
     <div id="tabAtt" class="tabPanel active">
@@ -295,7 +324,7 @@
 </div>
 
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbyiPcZaM6b_gd8CFlt_ApjTwVo4UlcMP1vKAntFf7qJxqrRk9kdIDXvQVF1deYMDmf0/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyq0c8uWSwBShwDIYVylwO4BnT10_NdFxPwL-WZqGw4ZQ3jkBVXun6YReUnFQQZ2N5P/exec';
 
   window.currentSchoolCode = null;
 
@@ -337,6 +366,13 @@
     if (savedCode) {
       callApi('getSchoolByCode', {code: savedCode}, function (school) {
         if (school) { onSchoolReady(school); }
+      });
+    }
+
+    const savedStudentCode = localStorage.getItem('studentCode');
+    if (savedStudentCode) {
+      callApi('getStudentByCode', {code: savedStudentCode}, function (student) {
+        if (student) { onStudentReady(student); }
       });
     }
   };
@@ -392,13 +428,16 @@
     document.getElementById('modeChoice').classList.add('hidden');
     if (mode === 'code') document.getElementById('codeMode').classList.remove('hidden');
     if (mode === 'new') document.getElementById('newMode').classList.remove('hidden');
+    if (mode === 'student') document.getElementById('studentMode').classList.remove('hidden');
   }
 
   function backToChoice() {
     document.getElementById('codeMode').classList.add('hidden');
     document.getElementById('newMode').classList.add('hidden');
+    document.getElementById('studentMode').classList.add('hidden');
     document.getElementById('codeError').innerText = '';
     document.getElementById('newSchoolResult').innerText = '';
+    document.getElementById('studentCodeError').innerText = '';
     document.getElementById('modeChoice').classList.remove('hidden');
   }
 
@@ -476,6 +515,77 @@
     loadStudents();
   }
 
+  // ====== دخول وشاشة الطالب المعلم (تسجيل حضور وانصراف بالموقع) ======
+  window.currentStudentCode = null;
+
+  function loginByStudentCode() {
+    const code = document.getElementById('studentCodeInput').value.trim();
+    document.getElementById('studentCodeError').innerText = '';
+    if (!code) { alert('اكتب كود الطالب المعلم'); return; }
+    callApi('getStudentByCode', {code: code}, function (student) {
+      if (!student) { document.getElementById('studentCodeError').innerText = 'الكود غير صحيح، تأكد منه مع المعلم المتعاون بتاعك'; }
+      else { onStudentReady(student); }
+    });
+  }
+
+  function onStudentReady(student) {
+    window.currentStudentCode = student.code;
+    localStorage.setItem('studentCode', student.code);
+    document.getElementById('modeChoice').classList.add('hidden');
+    document.getElementById('studentMode').classList.add('hidden');
+    document.getElementById('studentNameDisplay').textContent = student.name;
+    document.getElementById('studentSchoolDisplay').textContent =
+      student.schoolName + (student.specialization ? ' - ' + student.specialization : '');
+    document.getElementById('studentActionMsg').innerText = '';
+    document.getElementById('studentPanel').classList.remove('hidden');
+  }
+
+  function logoutStudent() {
+    localStorage.removeItem('studentCode');
+    window.currentStudentCode = null;
+    document.getElementById('studentPanel').classList.add('hidden');
+    document.getElementById('modeChoice').classList.remove('hidden');
+  }
+
+  function getDeviceId() {
+    let id = localStorage.getItem('deviceId');
+    if (!id) {
+      id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() :
+        'dev-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+      localStorage.setItem('deviceId', id);
+    }
+    return id;
+  }
+
+  function requestLocationAndSubmit(type) {
+    const msgEl = document.getElementById('studentActionMsg');
+    if (!navigator.geolocation) {
+      msgEl.className = 'error';
+      msgEl.innerText = 'المتصفح ده مش بيدعم تحديد الموقع';
+      return;
+    }
+    msgEl.className = 'msg';
+    msgEl.innerText = 'جاري تحديد موقعك...';
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      callApi('submitLocationAttendance', {
+        studentCode: window.currentStudentCode,
+        type: type,
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        accuracy: pos.coords.accuracy,
+        deviceId: getDeviceId()
+      }, function (res) {
+        msgEl.className = 'msg';
+        msgEl.innerText = res.message;
+      });
+    }, function (err) {
+      msgEl.className = 'error';
+      if (err.code === 1) msgEl.innerText = 'لازم توافق على إذن الموقع من المتصفح عشان تقدر تسجل';
+      else if (err.code === 2) msgEl.innerText = 'تعذر تحديد الموقع حاليًا، جرب من مكان تاني';
+      else msgEl.innerText = 'استغرق تحديد الموقع وقت طويل، جرب تاني';
+    }, {enableHighAccuracy: true, timeout: 15000, maximumAge: 0});
+  }
+
   function loadStudents() {
     callApi('getStudentsBySchoolCode', {schoolCode: window.currentSchoolCode}, function (list) {
       fillAttendanceTable(list);
@@ -488,8 +598,14 @@
   function addStudent() {
     const name = document.getElementById('newStudentName').value.trim();
     if (!name) { alert('اكتب اسم الطالب المعلم'); return; }
-    callApi('registerStudent', {schoolCode: window.currentSchoolCode, studentName: name}, function () {
+    callApi('registerStudent', {schoolCode: window.currentSchoolCode, studentName: name}, function (student) {
       document.getElementById('newStudentName').value = '';
+      document.getElementById('newStudentResult').innerHTML =
+        '<div class="codeResultBox">' +
+          '<div class="label">كود ' + student.name + ' هو</div>' +
+          '<div class="bigCode">' + student.code + '</div>' +
+          '<div class="hint">سلّمه للطالب المعلم - هيحتاجه عشان يسجل حضوره وانصرافه بنفسه من موبايله</div>' +
+        '</div>';
       loadStudents();
     });
   }
@@ -522,7 +638,7 @@
 
       const nameDiv = document.createElement('div');
       nameDiv.className = 'name';
-      nameDiv.textContent = st.name;
+      nameDiv.innerHTML = st.name + ' <span style="font-size:11px; color:#8b9186; font-weight:400;">(' + st.code + ')</span>';
       row.appendChild(nameDiv);
 
       const pillGroup = document.createElement('div');
