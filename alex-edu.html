@@ -177,6 +177,8 @@
   <div id="codeMode" class="entryWrap hidden">
     <label>كود المدرسة</label>
     <input type="text" id="schoolCodeInput" placeholder="مثال: 0102009" inputmode="numeric">
+    <label>كلمة المرور</label>
+    <input type="password" id="schoolPasswordInput" placeholder="كلمة المرور بتاعتك">
     <button class="primary" onclick="loginByCode()">دخول</button>
     <p class="error" id="codeError"></p>
     <button class="ghost" onclick="backToChoice()">رجوع</button>
@@ -195,6 +197,8 @@
     <input type="text" id="newTeacherName" placeholder="اسمك بالكامل">
     <label>رقم هاتفه</label>
     <input type="tel" id="newTeacherPhone" placeholder="01xxxxxxxxx">
+    <label>اختار كلمة مرور لمدرستك</label>
+    <input type="password" id="newSchoolPassword" placeholder="هتحتاجها في كل تسجيل دخول بعد كده">
     <button class="primary" onclick="registerSchool()">تسجيل والحصول على الكود</button>
     <div class="msg" id="newSchoolResult"></div>
     <button class="ghost" onclick="backToChoice()">رجوع</button>
@@ -231,11 +235,11 @@
       <div class="hint" id="studentSchoolDisplay" style="color:var(--slate);"></div>
     </div>
 
-    <button class="primary" onclick="requestLocationAndSubmit('حضور')">تسجيل الحضور بالمدرسة</button>
-    <button class="primary" style="background:var(--brick);" onclick="requestLocationAndSubmit('انصراف')">تسجيل الانصراف من المدرسة</button>
+    <button class="primary" onclick="requestLocationAndSubmit('حضور')">تسجيل الحضور بالموقع</button>
+    <button class="primary" style="background:var(--brick);" onclick="requestLocationAndSubmit('انصراف')">تسجيل الانصراف بالموقع</button>
     <p class="msg" id="studentActionMsg"></p>
     <p style="text-align:center; font-size:12px; color:#7a8073; margin-top:16px; line-height:1.6;">
-      لازم تكون قريب من موقع المدرسة (في حدود 300 متر تقريبًا) عشان تقدر تسجل حضورك أو انصرافك.
+      أول مرة تسجل فيها، هيتسجل موقعك الحالي كموقع مرجعي لمدرستك. بعد كده لازم تكون قريب من نفس الموقع (في حدود 300 متر تقريبًا) عشان تقدر تسجل حضورك أو انصرافك.
     </p>
     <button class="ghost" onclick="logoutStudent()">تسجيل خروج</button>
   </div>
@@ -344,11 +348,11 @@
 </div>
 
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbw9TE5c76reYDRaFA0DPesnpWKWdhKfNhT5kBHqzVbFAEHfrD4-T00ovqFP1czlBw2y/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwQjYNGtx4BZS7OG4O0J-4gRtnhpH68f85M4UklEZRAnpMuqoCpw5xIJ0x_V5zabRY/exec';
 
   window.currentSchoolCode = null;
 
-  function callApi(action, params, callback, retried) {
+  function callApi(action, params, callback, retried, silent) {
     params = params || {};
     let query = 'action=' + encodeURIComponent(action);
     Object.keys(params).forEach(function (k) {
@@ -363,17 +367,17 @@
         } catch (parseErr) {
           if (!retried) {
             // الخادم أحيانًا بياخد وقت "يفيق" ويرجّع رد غير مكتمل - نجرب مرة تانية تلقائيًا قبل ما نزعج المستخدم
-            setTimeout(function () { callApi(action, params, callback, true); }, 800);
+            setTimeout(function () { callApi(action, params, callback, true, silent); }, 800);
             return;
           }
-          alert('الخادم بطّأ في الرد. البيانات على الأغلب اتسجلت بالفعل فعلاً فتأكد من الشيت، ولو لسه فاضل جرّب تاني بعد شوية.');
+          if (!silent) alert('الخادم بطّأ في الرد. البيانات على الأغلب اتسجلت بالفعل فعلاً فتأكد من الشيت، ولو لسه فاضل جرّب تاني بعد شوية.');
           return;
         }
         if (json.success) { callback(json.data); }
-        else { alert('حدث خطأ: ' + json.error); }
+        else if (!silent) { alert('حدث خطأ: ' + json.error); }
       })
       .catch(function (err) {
-        alert('تعذر الاتصال بالخادم، تأكد من الاتصال بالإنترنت. (' + err.message + ')');
+        if (!silent) alert('تعذر الاتصال بالخادم، تأكد من الاتصال بالإنترنت. (' + err.message + ')');
       });
   }
 
@@ -383,17 +387,18 @@
     callApi('getObservationItems', {}, fillObservationItems);
 
     const savedCode = localStorage.getItem('schoolCode');
-    if (savedCode) {
-      callApi('getSchoolByCode', {code: savedCode}, function (school) {
+    const savedPassword = localStorage.getItem('schoolPassword');
+    if (savedCode && savedPassword) {
+      callApi('loginToSchool', {code: savedCode, password: savedPassword}, function (school) {
         if (school) { onSchoolReady(school); }
-      });
+      }, false, true);
     }
 
     const savedStudentCode = localStorage.getItem('studentCode');
     if (savedStudentCode) {
       callApi('getStudentByCode', {code: savedStudentCode}, function (student) {
         if (student) { onStudentReady(student); }
-      });
+      }, false, true);
     }
   };
 
@@ -430,6 +435,7 @@
 
   function logoutSchool() {
     localStorage.removeItem('schoolCode');
+    localStorage.removeItem('schoolPassword');
     window.currentSchoolCode = null;
     document.getElementById('dashboard').classList.add('hidden');
     document.getElementById('tabbar').classList.add('hidden');
@@ -486,11 +492,13 @@
 
   function loginByCode() {
     const code = document.getElementById('schoolCodeInput').value.trim();
+    const password = document.getElementById('schoolPasswordInput').value;
     document.getElementById('codeError').innerText = '';
     if (!code) { alert('اكتب كود المدرسة'); return; }
-    callApi('getSchoolByCode', {code: code}, function (school) {
-      if (!school) { document.getElementById('codeError').innerText = 'الكود غير صحيح، تأكد منه أو سجل مدرسة جديدة'; }
-      else { onSchoolReady(school); }
+    if (!password) { alert('اكتب كلمة المرور'); return; }
+    callApi('loginToSchool', {code: code, password: password}, function (school) {
+      localStorage.setItem('schoolPassword', password);
+      onSchoolReady(school);
     });
   }
 
@@ -501,14 +509,16 @@
     const specialization = document.getElementById('specSelect').value;
     const teacherName = document.getElementById('newTeacherName').value.trim();
     const teacherPhone = document.getElementById('newTeacherPhone').value.trim();
-    if (!admin || !stage || !name || !specialization || !teacherName || !teacherPhone) { alert('املأ كل الحقول'); return; }
+    const password = document.getElementById('newSchoolPassword').value;
+    if (!admin || !stage || !name || !specialization || !teacherName || !teacherPhone || !password) { alert('املأ كل الحقول'); return; }
     document.getElementById('newSchoolResult').innerText = 'جاري التسجيل...';
-    callApi('registerNewSchool', {adminCode: admin, stageCode: stage, schoolName: name, specialization: specialization, teacherName: teacherName, teacherPhone: teacherPhone}, function (school) {
+    callApi('registerNewSchool', {adminCode: admin, stageCode: stage, schoolName: name, specialization: specialization, teacherName: teacherName, teacherPhone: teacherPhone, password: password}, function (school) {
+      localStorage.setItem('schoolPassword', password);
       document.getElementById('newSchoolResult').innerHTML =
         '<div class="codeResultBox">' +
           '<div class="label">كود مدرستك هو</div>' +
           '<div class="bigCode">' + school.code + '</div>' +
-          '<div class="hint">احتفظ بالكود ده! هتحتاجه في كل مرة تدخل بعد كده</div>' +
+          '<div class="hint">احتفظ بالكود وكلمة المرور! هتحتاجهم في كل مرة تدخل بعد كده</div>' +
         '</div>';
       const btn = document.createElement('button');
       btn.className = 'primary';
