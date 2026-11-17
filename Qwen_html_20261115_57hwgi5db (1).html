@@ -1,0 +1,3628 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#081a22">
+<title>مختبر المجهر التفاعلي | كيف نستخدم المجهر؟</title>
+<meta name="description" content="درس تفاعلي ثلاثي الأبعاد لاستخدام المجهر: الخطوات، الصورة المقلوبة، التكبير، واختبار ذاتي — مجاني للطلاب.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<style>
+:root{
+  --bg:#081a22;
+  --bg2:#0c2430;
+  --surface:#102e3b;
+  --surface2:#143847;
+  --line:rgba(126,214,223,.17);
+  --line2:rgba(126,214,223,.34);
+  --ink:#f2ecdc;
+  --dim:#b1c7ce;
+  --faint:#829da7;
+  --brass:#f0b445;
+  --brass2:#c98a2e;
+  --acid:#8fe83f;
+  --cyan:#3fd4f5;
+  --magenta:#ff5fa8;
+  --blue:#4cc9f0;
+  --ok:#3ddc84;
+  --warn:#ffb020;
+  --danger:#ff5d5d;
+  --nav-h:64px;
+  --r:18px;
+}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:calc(var(--nav-h) + 16px);
+}
+body{
+  min-height:100vh;
+  overflow-x:hidden;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Tajawal",system-ui,sans-serif;
+  line-height:1.75;
+}
+button,input,select{font:inherit}
+button,a,input,select{touch-action:manipulation}
+button{cursor:pointer}
+a{color:var(--cyan);text-decoration:none}
+b,strong{color:var(--brass)}
+h1,h2,h3,.display{font-family:"Cairo",sans-serif}
+:focus-visible{outline:3px solid var(--acid);outline-offset:3px}
+::selection{background:var(--brass);color:#1a1206}
+
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{
+  border:2px solid var(--bg2);
+  border-radius:10px;
+  background:linear-gradient(var(--brass2),var(--cyan));
+}
+::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(var(--brass),var(--acid));
+}
+*{scrollbar-width:thin;scrollbar-color:var(--brass2) var(--bg2)}
+
+.aurora{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  overflow:hidden;
+  background:
+    radial-gradient(1000px 650px at 90% -10%,#0e3544 0%,transparent 62%),
+    radial-gradient(800px 600px at 5% 110%,#17352e 0%,transparent 58%),
+    var(--bg);
+}
+.blob{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(90px);
+  opacity:.25;
+  animation:drift 24s ease-in-out infinite alternate;
+}
+.b1{width:480px;height:480px;background:#0f6574;top:-170px;right:-140px}
+.b2{width:400px;height:400px;background:#694211;bottom:-150px;left:-120px;animation-delay:-9s}
+.b3{width:280px;height:280px;background:#481238;top:45%;left:32%;animation-delay:-15s}
+@keyframes drift{to{transform:translate(-55px,45px) scale(1.14)}}
+.grain{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+}
+
+/* الشريط العلوي */
+nav{
+  position:fixed;
+  inset:0 0 auto;
+  z-index:60;
+  height:var(--nav-h);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left));
+  border-bottom:1px solid var(--line);
+  background:rgba(8,26,34,.9);
+  backdrop-filter:blur(15px);
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:none;
+  color:var(--ink);
+  font-family:"Cairo";
+  font-size:.98rem;
+  font-weight:900;
+  white-space:nowrap;
+}
+.brand svg{width:30px;height:30px}
+.nav-links{
+  display:flex;
+  gap:3px;
+  min-width:0;
+  margin-inline-start:auto;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{
+  position:relative;
+  flex:none;
+  padding:8px 11px;
+  border-radius:10px;
+  color:var(--dim);
+  font-size:.86rem;
+  font-weight:700;
+  white-space:nowrap;
+}
+.nav-links a:hover,.nav-links a.active{
+  color:var(--brass);
+  background:rgba(240,180,69,.08);
+}
+.nav-links a.active::after{
+  content:"";
+  position:absolute;
+  right:11px;
+  left:11px;
+  bottom:2px;
+  height:2px;
+  border-radius:2px;
+  background:linear-gradient(90deg,var(--brass),var(--acid));
+}
+.icon-btn{
+  min-width:44px;
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  flex:none;
+  padding:7px 11px;
+  border:1px solid var(--line2);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--ink);
+  font-size:.84rem;
+  font-weight:700;
+}
+.icon-btn[aria-pressed="false"]{opacity:.65}
+.nav-cta{
+  flex:none;
+  padding:9px 15px;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--brass),#ff8a3d);
+  color:#221302;
+  font-family:"Cairo";
+  font-size:.86rem;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+/* المقدمة */
+.hero{
+  max-width:1400px;
+  margin:auto;
+  padding:calc(var(--nav-h) + 32px) clamp(14px,4vw,44px) 22px;
+}
+.chips,.hero-actions{display:flex;flex-wrap:wrap;gap:8px}
+.chips{margin-bottom:12px}
+.chip{
+  padding:4px 12px;
+  border:1px solid var(--line2);
+  border-radius:99px;
+  background:rgba(16,46,59,.65);
+  color:var(--dim);
+  font-size:.77rem;
+  font-weight:700;
+}
+.chip.hot{border:0;background:linear-gradient(135deg,var(--brass),#ff8a3d);color:#221302}
+.chip.green{border-color:rgba(143,232,63,.4);color:var(--acid)}
+h1{font-size:clamp(1.7rem,4.4vw,3rem);font-weight:900;line-height:1.35}
+.grad{
+  background:linear-gradient(90deg,var(--cyan),var(--acid));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.sub{max-width:780px;margin-top:8px;color:var(--dim);font-size:1rem}
+.hero-actions{margin-top:16px}
+.btn{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 20px;
+  border:0;
+  border-radius:13px;
+  font-family:"Cairo";
+  font-size:.9rem;
+  font-weight:900;
+  transition:transform .18s,box-shadow .18s,background .18s;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:scale(.97)}
+.btn.primary{
+  background:linear-gradient(135deg,var(--brass),#ff8a3d);
+  color:#221302;
+  box-shadow:0 5px 20px rgba(240,180,69,.3);
+}
+.btn.ghost{border:1.5px solid var(--line2);background:transparent;color:var(--cyan)}
+.btn.ghost:hover{border-color:var(--cyan);background:rgba(63,212,245,.08)}
+.btn.danger{border:1.5px solid rgba(255,93,93,.5);background:rgba(255,93,93,.1);color:var(--danger)}
+.btn.small{min-height:42px;padding:7px 13px;font-size:.8rem}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+main{max-width:1400px;margin:auto;padding:0 clamp(12px,4vw,44px)}
+section{position:relative;padding:32px 0;scroll-margin-top:calc(var(--nav-h) + 16px)}
+.sec-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:11px;margin-bottom:6px}
+.sec-head .num{
+  padding:2px 10px;
+  border:1px solid rgba(240,180,69,.4);
+  border-radius:9px;
+  color:var(--brass);
+  font-family:"Cairo";
+  font-size:.88rem;
+  font-weight:900;
+}
+h2{font-size:clamp(1.25rem,2.6vw,1.8rem);font-weight:900}
+.sec-sub{max-width:850px;margin-bottom:17px;color:var(--dim)}
+.panel{
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  background:linear-gradient(180deg,var(--surface),rgba(16,46,59,.6));
+  padding:16px;
+}
+.callout{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  margin:14px 0;
+  padding:13px 15px;
+  border:1px solid;
+  border-radius:14px;
+  font-size:.92rem;
+}
+.callout .ic{font-size:1.25rem}
+.callout.danger{border-color:rgba(255,93,93,.4);background:rgba(255,93,93,.08)}
+.callout.info{border-color:rgba(76,201,240,.4);background:rgba(76,201,240,.08)}
+.callout.ok{border-color:rgba(61,220,132,.4);background:rgba(61,220,132,.08)}
+.callout.warn{border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
+
+/* المختبر */
+.lab-grid{
+  display:grid;
+  grid-template-columns:296px minmax(0,1fr) 330px;
+  align-items:start;
+  gap:14px;
+}
+.ctrl-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+  color:var(--brass);
+  font-family:"Cairo";
+  font-size:.95rem;
+  font-weight:900;
+}
+.ctrl-group{margin-bottom:14px}
+.ctrl-label{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:6px;
+  color:var(--dim);
+  font-size:.82rem;
+  font-weight:700;
+}
+.ctrl-label output{color:var(--acid);font-family:"Cairo";font-weight:900}
+.seg{display:flex;gap:6px}
+.seg button{
+  min-height:44px;
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  padding:7px 4px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--bg2);
+  color:var(--dim);
+  font-family:"Cairo";
+  font-size:.84rem;
+  font-weight:900;
+}
+.seg button.on{
+  border-color:transparent;
+  background:linear-gradient(135deg,var(--brass),#ff8a3d);
+  color:#221302;
+}
+.dot{width:8px;height:8px;flex:none;border-radius:50%}
+input[type="range"]{
+  width:100%;
+  height:32px;
+  margin:0;
+  appearance:none;
+  -webkit-appearance:none;
+  background:transparent;
+  direction:ltr;
+}
+input[type="range"]::-webkit-slider-runnable-track{
+  height:7px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:linear-gradient(90deg,#123744,#1d5568);
+}
+input[type="range"]::-webkit-slider-thumb{
+  width:24px;
+  height:24px;
+  margin-top:-9px;
+  appearance:none;
+  -webkit-appearance:none;
+  border:2px solid #241503;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#ffe1a0,var(--brass) 60%,var(--brass2));
+  box-shadow:0 0 10px rgba(240,180,69,.5);
+}
+input[type="range"]::-moz-range-track{
+  height:7px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:linear-gradient(90deg,#123744,#1d5568);
+}
+input[type="range"]::-moz-range-thumb{
+  width:21px;
+  height:21px;
+  border:2px solid #241503;
+  border-radius:50%;
+  background:var(--brass);
+}
+select{
+  width:100%;
+  min-height:46px;
+  padding:8px 11px;
+  border:1px solid var(--line2);
+  border-radius:11px;
+  background:var(--bg2);
+  color:var(--ink);
+  font-weight:700;
+}
+.tgl-row{display:flex;flex-wrap:wrap;gap:9px 14px;margin:4px 0 14px}
+.switch{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:var(--dim);
+  font-size:.8rem;
+  font-weight:700;
+  cursor:pointer;
+}
+.switch input{position:absolute;opacity:0}
+.switch .tr{
+  width:38px;
+  height:22px;
+  flex:none;
+  position:relative;
+  border:1px solid var(--line2);
+  border-radius:99px;
+  background:#123744;
+}
+.switch .tr::after{
+  content:"";
+  position:absolute;
+  top:2px;
+  right:2px;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background:var(--faint);
+  transition:.2s;
+}
+.switch input:checked+.tr{border-color:var(--acid);background:rgba(143,232,63,.22)}
+.switch input:checked+.tr::after{right:18px;background:var(--acid)}
+.switch input:focus-visible+.tr{outline:3px solid var(--acid);outline-offset:3px}
+.ctrl-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ctrl-btns .btn{padding:8px 5px;font-size:.77rem}
+
+.viewport{
+  position:relative;
+  min-height:560px;
+  overflow:hidden;
+  border:1px solid var(--line2);
+  border-radius:var(--r);
+  background:radial-gradient(900px 500px at 50% 20%,#0e2c3a,#081a22 72%);
+}
+.viewport canvas.gl{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  touch-action:none;
+}
+.view-hint{
+  position:absolute;
+  top:11px;
+  right:11px;
+  z-index:5;
+  max-width:calc(100% - 22px);
+  padding:5px 12px;
+  border:1px solid var(--line);
+  border-radius:99px;
+  background:rgba(8,26,34,.8);
+  color:var(--dim);
+  font-size:.72rem;
+  font-weight:700;
+  pointer-events:none;
+}
+.labels-layer{position:absolute;inset:0;z-index:4;overflow:hidden;pointer-events:none}
+.lbl{
+  position:absolute;
+  top:0;
+  right:0;
+  padding:3px 9px;
+  border:1px solid rgba(240,180,69,.55);
+  border-radius:99px;
+  background:rgba(8,26,34,.86);
+  color:var(--ink);
+  font-family:"Cairo";
+  font-size:.68rem;
+  font-weight:900;
+  white-space:nowrap;
+  will-change:transform;
+}
+.lbl::after{
+  content:"";
+  position:absolute;
+  right:50%;
+  bottom:-5px;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--brass);
+}
+.caption-bar{
+  position:absolute;
+  right:50%;
+  bottom:13px;
+  z-index:6;
+  width:max-content;
+  max-width:calc(100% - 22px);
+  display:none;
+  align-items:center;
+  gap:9px;
+  padding:9px 12px;
+  transform:translateX(50%);
+  border:1px solid var(--brass);
+  border-radius:14px;
+  background:rgba(8,26,34,.93);
+}
+.caption-bar.show{display:flex}
+.cap-num{flex:none;padding:2px 9px;border-radius:8px;background:var(--brass);color:#221302;font-family:"Cairo";font-weight:900}
+.cap-txt{min-width:0;font-size:.82rem;font-weight:700;line-height:1.5}
+.caption-bar button{
+  min-width:40px;
+  min-height:40px;
+  flex:none;
+  border:1px solid var(--danger);
+  border-radius:9px;
+  background:transparent;
+  color:var(--danger);
+  font-size:.72rem;
+  font-weight:700;
+}
+.fallback3d{
+  position:absolute;
+  inset:0;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:13px;
+  padding:22px;
+  color:var(--dim);
+  text-align:center;
+}
+.fallback3d.show{display:flex}
+.viewport.shake{animation:shake .45s}
+@keyframes shake{
+  20%{transform:translate(-6px,3px)}
+  40%{transform:translate(5px,-3px)}
+  60%{transform:translate(-4px,-2px)}
+  80%{transform:translate(3px,2px)}
+}
+
+/* المنظار */
+.eye-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.eye-ring{
+  position:relative;
+  width:min(280px,100%);
+  aspect-ratio:1;
+  flex:none;
+  padding:10px;
+  border-radius:50%;
+  background:conic-gradient(from 200deg,#2a3a44,#0d171d,#3a4c58,#0d171d,#2a3a44);
+  box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 12px rgba(0,0,0,.8);
+}
+.eye-ring canvas{
+  width:100%;
+  height:100%;
+  display:block;
+  border-radius:50%;
+  cursor:grab;
+  touch-action:none;
+}
+.eye-ring canvas:active{cursor:grabbing}
+.eye-tag{
+  position:absolute;
+  right:50%;
+  bottom:-8px;
+  padding:2px 11px;
+  transform:translateX(50%);
+  border:1px solid var(--line2);
+  border-radius:99px;
+  background:var(--surface2);
+  color:var(--dim);
+  font-size:.68rem;
+  font-weight:700;
+  white-space:nowrap;
+}
+.mag-big{color:var(--brass);font-family:"Cairo";font-size:2rem;font-weight:900;line-height:1.15}
+.mag-formula{color:var(--dim);font-size:.8rem;font-weight:700}
+.readouts{width:100%;display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.readout{display:flex;align-items:center;gap:8px;color:var(--dim);font-size:.77rem;font-weight:700}
+.readout .rl{width:76px;flex:none}
+.meter{height:8px;flex:1;overflow:hidden;border:1px solid var(--line);border-radius:6px;background:#0d2530}
+.meter i{display:block;height:100%;border-radius:6px;transition:width .25s}
+.readout .rv{width:52px;flex:none;color:var(--ink);text-align:left}
+.pill{padding:3px 11px;border:1px solid;border-radius:99px;font-size:.73rem;font-weight:900}
+.pill.ok{border-color:rgba(61,220,132,.5);background:rgba(61,220,132,.1);color:var(--ok)}
+.pill.warn{border-color:rgba(255,176,32,.5);background:rgba(255,176,32,.1);color:var(--warn)}
+.pill.danger{border-color:rgba(255,93,93,.5);background:rgba(255,93,93,.1);color:var(--danger)}
+.pad{
+  display:grid;
+  grid-template-columns:repeat(3,46px);
+  grid-template-rows:repeat(3,44px);
+  justify-content:center;
+  gap:5px;
+}
+.pad button{
+  border:1px solid var(--line2);
+  border-radius:10px;
+  background:var(--bg2);
+  color:var(--cyan);
+  font-size:1rem;
+  font-weight:900;
+}
+.pad button:active{transform:scale(.94);background:rgba(63,212,245,.15)}
+.pad .mid{display:flex;align-items:center;justify-content:center;color:var(--faint)}
+.challenge-box{
+  width:100%;
+  padding:10px 12px;
+  border:1px dashed rgba(143,232,63,.45);
+  border-radius:13px;
+  background:rgba(143,232,63,.05);
+}
+.ch-row{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--dim);font-size:.79rem;font-weight:700}
+.ch-stats{display:none;gap:12px;margin-top:6px;color:var(--acid);font-family:"Cairo";font-size:.83rem;font-weight:900}
+.challenge-box.active .ch-stats{display:flex}
+.eye-actions{width:100%;display:flex;gap:8px}
+.eye-actions .btn{flex:1}
+
+/* الخطوات */
+.steps-list{position:relative;display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.steps-list::before{
+  content:"";
+  position:absolute;
+  top:10px;
+  bottom:10px;
+  right:23px;
+  width:2px;
+  background:linear-gradient(var(--brass),var(--cyan),var(--acid));
+  opacity:.35;
+}
+.step-card{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  gap:13px;
+  padding:14px 15px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:linear-gradient(180deg,var(--surface),rgba(16,46,59,.55));
+}
+.step-card.active{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass)}
+.step-num{
+  position:relative;
+  z-index:1;
+  width:46px;
+  height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:none;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--brass),#ff8a3d);
+  color:#221302;
+  font-family:"Cairo";
+  font-size:1.1rem;
+  font-weight:900;
+}
+.step-body{min-width:0;flex:1}
+.step-body h3{margin-bottom:2px;font-size:.98rem;font-weight:900}
+.step-body p{color:var(--dim);font-size:.88rem}
+.step-card .btn{flex:none;align-self:center}
+
+/* الصورة المقلوبة */
+.inv-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-top:16px}
+.inv-card{text-align:center}
+.inv-card h3{margin-bottom:10px;color:var(--dim);font-size:.93rem}
+.inv-card canvas{
+  width:min(230px,100%);
+  aspect-ratio:1;
+  border:3px solid var(--line2);
+  border-radius:50%;
+  background:#0a141a;
+}
+.inv-card.real canvas{border-color:rgba(76,201,240,.5)}
+.inv-card.scope canvas{border-color:rgba(255,95,168,.5)}
+.inv-vs{
+  width:82px;
+  height:82px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px solid rgba(255,95,168,.5);
+  border-radius:50%;
+  background:rgba(255,95,168,.07);
+  color:var(--magenta);
+  font-family:"Cairo";
+  font-size:1.4rem;
+  font-weight:900;
+}
+.inv-controls{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:17px}
+#dirLabel{font-size:.9rem;font-weight:700;text-align:center}
+
+/* التكبير */
+.formula-banner{
+  margin-bottom:18px;
+  padding:15px;
+  border:1px solid rgba(240,180,69,.5);
+  border-radius:16px;
+  background:linear-gradient(90deg,rgba(240,180,69,.1),rgba(143,232,63,.08),rgba(63,212,245,.1));
+  font-family:"Cairo";
+  font-size:clamp(.95rem,2.4vw,1.4rem);
+  font-weight:900;
+  text-align:center;
+}
+.calc-row{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:13px;margin-bottom:20px}
+.calc-cell{min-width:165px;display:flex;flex-direction:column;gap:6px}
+.calc-cell label{color:var(--dim);font-size:.8rem;font-weight:700}
+.calc-op{color:var(--cyan);font-family:"Cairo";font-size:1.5rem;font-weight:900}
+.calc-result{min-width:110px;color:var(--brass);font-family:"Cairo";font-size:2.2rem;font-weight:900;text-align:center}
+.mag-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mag-card{padding:18px;text-align:center}
+.mag-card h3{margin-bottom:10px;font-size:.98rem}
+.mag-card canvas{width:min(190px,100%);aspect-ratio:1;border:3px solid var(--line2);border-radius:50%;background:#0a141a}
+.mag-card.low canvas{border-color:rgba(143,232,63,.5)}
+.mag-card.high canvas{border-color:rgba(255,176,32,.45)}
+.trait-chips{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:12px}
+.trait{padding:4px 13px;border:1px solid;border-radius:99px;font-size:.77rem;font-weight:900}
+.trait.wide{border-color:rgba(143,232,63,.5);background:rgba(143,232,63,.08);color:var(--acid)}
+.trait.bright{border-color:rgba(240,180,69,.5);background:rgba(240,180,69,.08);color:var(--brass)}
+.trait.narrow{border-color:rgba(255,95,168,.5);background:rgba(255,95,168,.08);color:var(--magenta)}
+.trait.dark{border-color:var(--line2);background:rgba(168,192,201,.06);color:var(--dim)}
+
+/* الاختبار */
+.quiz-card{max-width:740px;margin:auto;padding:22px}
+.q-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;color:var(--dim);font-size:.84rem;font-weight:700}
+.q-bar{height:8px;overflow:hidden;margin-bottom:18px;border:1px solid var(--line);border-radius:6px;background:#0d2530}
+.q-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--acid));transition:width .35s}
+#qText{margin-bottom:16px;font-family:"Cairo";font-size:1.1rem;font-weight:900;line-height:1.65}
+.q-opts{display:flex;flex-direction:column;gap:9px}
+.q-opt{
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:11px 13px;
+  border:1.5px solid var(--line);
+  border-radius:13px;
+  background:var(--bg2);
+  color:var(--ink);
+  font-size:.92rem;
+  font-weight:700;
+  text-align:right;
+}
+.q-opt .letter{
+  width:31px;
+  height:31px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:none;
+  border:1px solid var(--line2);
+  border-radius:9px;
+  background:var(--surface2);
+  color:var(--cyan);
+  font-family:"Cairo";
+  font-weight:900;
+}
+.q-opt.correct{border-color:var(--ok);background:rgba(61,220,132,.12)}
+.q-opt.correct .letter{border-color:transparent;background:var(--ok);color:#04160b}
+.q-opt.wrong{border-color:var(--danger);background:rgba(255,93,93,.1)}
+.q-opt.wrong .letter{border-color:transparent;background:var(--danger);color:#1c0505}
+.q-opt:disabled{cursor:default}
+.q-why{display:none;margin-top:14px;padding:12px 14px;border:1px solid;border-radius:13px;font-size:.88rem}
+.q-why.show{display:block}
+.q-why.good{border-color:rgba(61,220,132,.4);background:rgba(61,220,132,.08)}
+.q-why.bad{border-color:rgba(255,93,93,.4);background:rgba(255,93,93,.08)}
+.q-next-row{display:flex;justify-content:flex-end;margin-top:16px}
+.q-result{padding:16px 0;text-align:center}
+.q-result .score{color:var(--brass);font-family:"Cairo";font-size:3rem;font-weight:900}
+.q-result .msg{margin:8px 0 18px;font-size:1.05rem;font-weight:700}
+
+footer{
+  margin-top:30px;
+  padding:28px max(14px,env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
+  border-top:1px solid var(--line);
+  background:rgba(8,22,29,.75);
+}
+.foot-grid{max-width:1400px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin:auto}
+.foot-grid h3{margin-bottom:8px;color:var(--brass);font-size:.93rem}
+.foot-grid p,.foot-grid li{color:var(--dim);font-size:.84rem}
+.foot-grid ol{padding-right:18px}
+.foot-bottom{max-width:1400px;margin:20px auto 0;padding-top:14px;border-top:1px solid var(--line);color:var(--faint);font-size:.8rem;text-align:center}
+
+#toastWrap{
+  position:fixed;
+  right:max(12px,env(safe-area-inset-right));
+  bottom:calc(14px + env(safe-area-inset-bottom));
+  z-index:100;
+  width:min(360px,calc(100vw - 24px));
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  pointer-events:none;
+}
+.toast{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  padding:11px 14px;
+  border:1px solid var(--line2);
+  border-radius:14px;
+  background:rgba(12,32,42,.97);
+  box-shadow:0 10px 28px rgba(0,0,0,.5);
+  font-size:.85rem;
+  font-weight:700;
+  animation:toastIn .3s ease;
+}
+.toast.success{border-color:rgba(61,220,132,.6)}
+.toast.danger{border-color:rgba(255,93,93,.6)}
+.toast.warn{border-color:rgba(255,176,32,.6)}
+.toast.info{border-color:rgba(76,201,240,.6)}
+.toast.out{opacity:0;transform:translateX(30px);transition:.25s}
+@keyframes toastIn{from{opacity:0;transform:translateX(35px)}}
+#confettiWrap{position:fixed;inset:0;z-index:99;overflow:hidden;pointer-events:none}
+.confetti{position:absolute;width:9px;height:13px;border-radius:2px;animation:confFall var(--dur) ease-out forwards}
+@keyframes confFall{to{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0}}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .65s,transform .65s;transition-delay:var(--d,0s)}
+.reveal.in{opacity:1;transform:none}
+
+/* تابلت */
+@media(max-width:1180px){
+  .lab-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .viewport{grid-column:1/-1;order:-1;min-height:470px}
+  .nav-cta{display:none}
+}
+
+/* الموبايل */
+@media(max-width:760px){
+  :root{--nav-h:60px}
+  nav{gap:7px;padding-inline:10px}
+  .brand span{display:none}
+  .brand svg{width:29px;height:29px}
+  .nav-links a{padding:8px 9px;font-size:.78rem}
+  .icon-btn{min-width:44px;padding:7px 9px}
+  .icon-btn span{display:none}
+  .hero{padding-top:calc(var(--nav-h) + 24px)}
+  .hero-actions .btn{flex:1 1 150px}
+  main{padding-inline:12px}
+  section{padding:27px 0}
+  .lab-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+  .viewport{grid-column:auto;min-height:390px;height:52svh;max-height:520px}
+  .panel{padding:14px}
+  .ctrl-panel{order:2}
+  .eye-wrap{order:1}
+  .eye-ring{width:min(280px,78vw)}
+  .ctrl-btns{gap:9px}
+  .ctrl-btns .btn{min-height:48px}
+  .step-card{flex-wrap:wrap;gap:11px}
+  .step-card .btn{width:calc(100% - 59px);margin-inline-start:59px}
+  .step-body{flex:1 1 calc(100% - 60px)}
+  .steps-list::before{right:22px}
+  .inv-grid{grid-template-columns:1fr;justify-items:center;gap:13px}
+  .inv-vs{width:62px;height:62px;font-size:1.05rem}
+  .inv-card{width:100%}
+  .inv-card canvas{width:min(230px,72vw)}
+  .mag-compare{grid-template-columns:1fr}
+  .calc-cell{min-width:130px;flex:1 1 130px}
+  .calc-result{width:100%;font-size:2rem}
+  .calc-op{font-size:1.25rem}
+  .quiz-card{padding:17px 14px}
+  #qText{font-size:1rem}
+  .q-opt{font-size:.88rem}
+  .foot-grid{grid-template-columns:1fr}
+  .caption-bar{align-items:flex-start;gap:7px}
+  .cap-txt{font-size:.76rem}
+  .view-hint{font-size:.67rem}
+}
+
+@media(max-width:380px){
+  .nav-links a{padding-inline:7px;font-size:.73rem}
+  .hero-actions .btn{flex-basis:100%}
+  .viewport{min-height:340px}
+  .ctrl-btns{grid-template-columns:1fr}
+  .pad{grid-template-columns:repeat(3,48px)}
+  .ch-row{align-items:flex-start;flex-direction:column}
+  .ch-row .btn{width:100%}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+
+<nav aria-label="التنقل الرئيسي">
+  <a class="brand" href="#top" aria-label="مختبر المجهر — الصفحة الرئيسية">
+    <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <path d="M13 4h5v3h-2v8.5a7 7 0 0 1 6 6.9V26H8v-3.6a7 7 0 0 1 6-6.9V7h-1z" fill="#f0b445"/>
+      <rect x="6" y="26" width="20" height="3" rx="1.5" fill="#3fd4f5"/>
+      <circle cx="16" cy="21" r="2.4" fill="#8fe83f"/>
+      <rect x="12" y="2" width="7" height="3" rx="1.5" fill="#ff5fa8"/>
+    </svg>
+    <span>مختبر المجهر</span>
+  </a>
+
+  <div class="nav-links" id="navLinks">
+    <a href="#lab" class="active">المختبر</a>
+    <a href="#steps">الخطوات</a>
+    <a href="#inversion">الصورة</a>
+    <a href="#magnification">التكبير</a>
+    <a href="#quiz">الاختبار</a>
+  </div>
+
+  <button class="icon-btn" id="soundBtn" aria-pressed="true" aria-label="كتم الصوت">
+    🔊 <span>الصوت</span>
+  </button>
+  <a class="nav-cta" href="#lab">جرّب الآن</a>
+</nav>
+
+<header class="hero" id="top">
+  <div class="chips reveal">
+    <span class="chip hot">الفصل الخامس</span>
+    <span class="chip">علوم — درس تفاعلي</span>
+    <span class="chip green">مجاني للطلاب</span>
+    <span class="chip">يعمل باللمس</span>
+  </div>
+
+  <h1 class="reveal" style="--d:.07s">
+    كيف نستخدم <span class="grad">المجهر</span>؟ 🔬
+  </h1>
+
+  <p class="sub reveal" style="--d:.14s">
+    دوّر المجهر بإصبعك، قرّب الصورة، وجرّب بنفسك لماذا تظهر
+    <b>مقلوبة ومعكوسة</b>، ولماذا نبدأ دائمًا بالتكبير المنخفض.
+  </p>
+
+  <div class="hero-actions reveal" style="--d:.2s">
+    <a class="btn primary" href="#lab">🔬 ادخل المختبر</a>
+    <a class="btn ghost" href="#steps">📖 خطوات الاستخدام</a>
+    <a class="btn ghost" href="#quiz">📝 اختبر نفسك</a>
+  </div>
+</header>
+
+<main>
+<section id="lab">
+  <div class="sec-head reveal">
+    <span class="num">١</span>
+    <h2>المختبر الافتراضي</h2>
+  </div>
+
+  <p class="sec-sub reveal">
+    على الموبايل: اسحب المجهر بإصبع واحد لتدويره، وقرّب بإصبعين.
+    كل أداة تؤثر فورًا على المجهر وعلى صورة المنظار.
+  </p>
+
+  <div class="lab-grid">
+    <aside class="panel ctrl-panel reveal" aria-label="أدوات التحكم في المجهر">
+      <div class="ctrl-title">🎛️ أدوات التحكم</div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span>العدسة الشيئية</span>
+          <output id="objOut">4×</output>
+        </div>
+        <div class="seg" id="objSeg" role="group" aria-label="اختيار العدسة الشيئية">
+          <button data-obj="4" class="on" aria-pressed="true">
+            <span class="dot" style="background:#ff5d5d"></span>4×
+          </button>
+          <button data-obj="10" aria-pressed="false">
+            <span class="dot" style="background:#ffb020"></span>10×
+          </button>
+          <button data-obj="40" aria-pressed="false">
+            <span class="dot" style="background:#4cc9f0"></span>40×
+          </button>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span>العدسة العينية</span>
+          <output id="eyeOut">10×</output>
+        </div>
+        <div class="seg" id="eyeSeg" role="group" aria-label="اختيار العدسة العينية">
+          <button data-eye="5" aria-pressed="false">5×</button>
+          <button data-eye="10" class="on" aria-pressed="true">10×</button>
+          <button data-eye="16" aria-pressed="false">16×</button>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="focusRange">
+          <span>🎚️ مقبض الضبط والتركيز</span>
+          <output id="focusOut">72</output>
+        </label>
+        <input type="range" id="focusRange" min="0" max="100" value="72">
+      </div>
+
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="lightRange">
+          <span>💡 زاوية العاكس والإضاءة</span>
+          <output id="lightOut">65</output>
+        </label>
+        <input type="range" id="lightRange" min="0" max="100" value="65">
+      </div>
+
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="uRange">
+          <span>↔️ الشريحة: يمين ويسار</span>
+          <output id="uOut">0</output>
+        </label>
+        <input type="range" id="uRange" min="-100" max="100" value="0">
+      </div>
+
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="vRange">
+          <span>↕️ الشريحة: أمام وخلف</span>
+          <output id="vOut">0</output>
+        </label>
+        <input type="range" id="vRange" min="-100" max="100" value="0">
+      </div>
+
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="specimenSel">🧫 العينة</label>
+        <select id="specimenSel">
+          <option value="onion">خلايا بشرة البصل</option>
+          <option value="e">حرف e</option>
+          <option value="para">براميسيوم</option>
+        </select>
+      </div>
+
+      <div class="tgl-row">
+        <label class="switch">
+          <input type="checkbox" id="labelsTgl" checked>
+          <span class="tr"></span>التسميات
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="beamTgl" checked>
+          <span class="tr"></span>أشعة الضوء
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="rotTgl" checked>
+          <span class="tr"></span>دوران تلقائي
+        </label>
+      </div>
+
+      <div class="ctrl-btns">
+        <button class="btn ghost small" id="resetBtn">♻️ إعادة الضبط</button>
+        <button class="btn ghost small" id="randomBtn">🎲 عينة عشوائية</button>
+        <button class="btn ghost small" id="shotBtn">📸 لقطة PNG</button>
+        <button class="btn danger small" id="crashBtn">⚠️ محاكاة الخطأ</button>
+      </div>
+    </aside>
+
+    <div class="viewport reveal" id="viewport" style="--d:.08s">
+      <canvas class="gl" id="glCanvas" aria-label="مجهر ثلاثي الأبعاد؛ اسحب بإصبع للتدوير وبإصبعين للتقريب"></canvas>
+      <div class="labels-layer" id="labelsLayer" aria-hidden="true"></div>
+      <div class="view-hint" id="viewHint">☝️ اسحب للتدوير • إصبعان للتقريب</div>
+
+      <div class="caption-bar" id="captionBar">
+        <span class="cap-num" id="capNum">١/٦</span>
+        <span class="cap-txt" id="capTxt"></span>
+        <button id="capStop" aria-label="إيقاف الجولة">✕</button>
+      </div>
+
+      <div class="fallback3d" id="fallback3d">
+        <svg width="130" height="150" viewBox="0 0 32 34" fill="none" aria-hidden="true">
+          <path d="M13 4h5v3h-2v8.5a7 7 0 0 1 6 6.9V26H8v-3.6a7 7 0 0 1 6-6.9V7h-1z" fill="#f0b445"/>
+          <rect x="6" y="26" width="20" height="3" rx="1.5" fill="#3fd4f5"/>
+          <circle cx="16" cy="21" r="2.4" fill="#8fe83f"/>
+        </svg>
+        <p>
+          العرض ثلاثي الأبعاد غير متاح على هذا الجهاز.<br>
+          <b>المنظار وأدوات الدرس والاختبار ما زالت تعمل.</b>
+        </p>
+      </div>
+    </div>
+
+    <aside class="panel eye-wrap reveal" style="--d:.14s" aria-label="صورة المنظار">
+      <div class="ctrl-title" style="align-self:flex-start">👁️ ما تراه في المنظار</div>
+
+      <div class="eye-ring">
+        <canvas id="eyeCanvas" width="280" height="280" tabindex="0"
+          aria-label="صورة المنظار؛ اسحب الصورة أو استخدم أزرار الأسهم لتحريكها"></canvas>
+        <span class="eye-tag">اسحب الصورة بإصبعك ✋</span>
+      </div>
+
+      <div class="mag-big" id="magBig">40×</div>
+      <div class="mag-formula" id="magFormula">العينية 10 × الشيئية 4</div>
+
+      <div class="readouts">
+        <div class="readout">
+          <span class="rl">مجال الرؤية</span>
+          <span class="meter"><i id="fieldMeter"></i></span>
+          <span class="rv" id="fieldLabel">واسع</span>
+        </div>
+        <div class="readout">
+          <span class="rl">السطوع</span>
+          <span class="meter"><i id="brightMeter"></i></span>
+          <span class="rv" id="brightLabel">100%</span>
+        </div>
+        <div class="readout">
+          <span class="rl">التركيز</span>
+          <span class="pill ok" id="focusStatus">واضح ✅</span>
+        </div>
+      </div>
+
+      <div class="pad" aria-label="أزرار تحريك صورة المنظار">
+        <span></span>
+        <button id="padUp" aria-label="تحريك الصورة لأعلى">▲</button>
+        <span></span>
+        <button id="padRight" aria-label="تحريك الصورة يمينًا">▶</button>
+        <span class="mid" aria-hidden="true">🔬</span>
+        <button id="padLeft" aria-label="تحريك الصورة يسارًا">◀</button>
+        <span></span>
+        <button id="padDown" aria-label="تحريك الصورة لأسفل">▼</button>
+        <span></span>
+      </div>
+
+      <div class="challenge-box" id="challengeBox">
+        <div class="ch-row">
+          <span>🎯 وسّط العينة داخل الدائرة</span>
+          <button class="btn ghost small" id="challengeBtn">ابدأ</button>
+        </div>
+        <div class="ch-stats">
+          <span>⏱ <span id="chTime">0.0s</span></span>
+          <span>📏 <span id="chDist">—</span></span>
+        </div>
+      </div>
+
+      <div class="eye-actions">
+        <button class="btn ghost small" id="eyeShotBtn">💾 حفظ صورة المنظار</button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section id="steps">
+  <div class="sec-head reveal">
+    <span class="num">٢</span>
+    <h2>طريقة استخدام المجهر — ٦ خطوات</h2>
+  </div>
+
+  <p class="sec-sub reveal">
+    اضغط «طبّق الخطوة» لتشاهد المجهر ينفذها، أو شغّل الجولة التعليمية كاملة.
+  </p>
+
+  <button class="btn primary reveal" id="tourBtn">▶️ شغّل الخطوات تلقائيًا</button>
+
+  <div class="callout danger reveal">
+    <span class="ic" aria-hidden="true">⚠️</span>
+    <div>
+      <b>السبب المهم:</b>
+      ننظر من الجانب أثناء تقريب العدسة الشيئية من الشريحة
+      <b>لمنع العدسة من الاصطدام بالشريحة وكسرها</b>.
+    </div>
+  </div>
+
+  <div class="steps-list">
+    <article class="step-card reveal" data-step="0">
+      <span class="step-num">١</span>
+      <div class="step-body">
+        <h3>مكان مستوٍ ومضيء</h3>
+        <p>ضعه في مكان <b>مستوٍ ومضيء</b> بعيدًا عن <b>أشعة الشمس المباشرة</b>.</p>
+      </div>
+      <button class="btn ghost small step-apply">طبّق الخطوة 🔬</button>
+    </article>
+
+    <article class="step-card reveal" data-step="1">
+      <span class="step-num">٢</span>
+      <div class="step-body">
+        <h3>أقل تكبير</h3>
+        <p>اضبط العدسة الشيئية على <b>أقل تكبير</b> وهو 4×.</p>
+      </div>
+      <button class="btn ghost small step-apply">طبّق الخطوة 🔬</button>
+    </article>
+
+    <article class="step-card reveal" data-step="2">
+      <span class="step-num">٣</span>
+      <div class="step-body">
+        <h3>اضبط العاكس</h3>
+        <p>انظر من خلال العدسة العينية واضبط زاوية <b>العاكس</b> حتى تصبح الرؤية واضحة ومضيئة.</p>
+      </div>
+      <button class="btn ghost small step-apply">طبّق الخطوة 🔬</button>
+    </article>
+
+    <article class="step-card reveal" data-step="3">
+      <span class="step-num">٤</span>
+      <div class="step-body">
+        <h3>ضع الشريحة</h3>
+        <p>ضع الشريحة المحضّرة على <b>المنضدة</b> وثبتها بالمشابك.</p>
+      </div>
+      <button class="btn ghost small step-apply">طبّق الخطوة 🔬</button>
+    </article>
+
+    <article class="step-card reveal" data-step="4">
+      <span class="step-num">٥</span>
+      <div class="step-body">
+        <h3>قرّب وأنت تنظر من الجانب</h3>
+        <p>أثناء النظر <b>من الجانب</b>، أدر مقبض الضبط لتقريب الشريحة والعدسة الشيئية من بعضهما قدر الإمكان.</p>
+      </div>
+      <button class="btn ghost small step-apply">طبّق الخطوة 🔬</button>
+    </article>
+
+    <article class="step-card reveal" data-step="5">
+      <span class="step-num">٦</span>
+      <div class="step-body">
+        <h3>اضبط الصورة أثناء الإبعاد</h3>
+        <p>انظر خلال العدسة العينية واضبط الصورة أثناء <b>إبعاد</b> العدسة الشيئية عن الشريحة.</p>
+      </div>
+      <button class="btn ghost small step-apply">طبّق الخطوة 🔬</button>
+    </article>
+  </div>
+</section>
+
+<section id="inversion">
+  <div class="sec-head reveal">
+    <span class="num">٣</span>
+    <h2>كيف تبدو الأشياء في المجهر؟</h2>
+  </div>
+
+  <p class="sec-sub reveal">
+    صورة الشيء داخل المجهر لا تظهر كما هي في الحقيقة، بل تظهر
+    <b>مقلوبة من أعلى لأسفل، ومعكوسة من اليمين إلى اليسار</b>.
+  </p>
+
+  <div class="inv-grid">
+    <div class="inv-card real reveal">
+      <h3>🧫 الشريحة في الحقيقة</h3>
+      <canvas id="realCanvas" width="230" height="230" aria-label="العينة في وضعها الحقيقي"></canvas>
+    </div>
+
+    <div class="inv-vs reveal" aria-label="دوران 180 درجة">١٨٠°</div>
+
+    <div class="inv-card scope reveal">
+      <h3>👁️ ما تراه في المجهر</h3>
+      <canvas id="scopeCanvas" width="230" height="230" aria-label="العينة مقلوبة ومعكوسة كما في المجهر"></canvas>
+    </div>
+  </div>
+
+  <div class="inv-controls reveal">
+    <button class="btn primary small" id="dirBtn">🔀 غيّر اتجاه الحركة</button>
+    <span id="dirLabel">أحرّك الشريحة يمينًا ← الصورة تتحرك يسارًا</span>
+  </div>
+
+  <div class="callout info reveal">
+    <span class="ic" aria-hidden="true">💡</span>
+    <div>
+      <b>القاعدة:</b>
+      حرّك الجسم في <b>الاتجاه المعاكس</b> للاتجاه الذي تريد أن تتحرك إليه الصورة.
+    </div>
+  </div>
+</section>
+
+<section id="magnification">
+  <div class="sec-head reveal">
+    <span class="num">٤</span>
+    <h2>التكبير وكيف تبدو الأشياء</h2>
+  </div>
+
+  <div class="formula-banner reveal">
+    تكبير المجهر = تكبير العدسة العينية × تكبير العدسة الشيئية
+  </div>
+
+  <div class="calc-row reveal">
+    <div class="calc-cell">
+      <label for="calcEye">العدسة العينية</label>
+      <select id="calcEye">
+        <option value="5">5×</option>
+        <option value="10" selected>10×</option>
+        <option value="16">16×</option>
+      </select>
+    </div>
+
+    <span class="calc-op" aria-hidden="true">×</span>
+
+    <div class="calc-cell">
+      <label for="calcObj">العدسة الشيئية</label>
+      <select id="calcObj">
+        <option value="4" selected>4×</option>
+        <option value="10">10×</option>
+        <option value="40">40×</option>
+      </select>
+    </div>
+
+    <span class="calc-op" aria-hidden="true">=</span>
+    <output class="calc-result" id="calcResult">40×</output>
+  </div>
+
+  <div class="mag-compare">
+    <div class="panel mag-card low reveal">
+      <h3>تكبير منخفض — 40×</h3>
+      <canvas id="lowCanvas" width="190" height="190" aria-label="مجال رؤية واسع وصورة مضيئة"></canvas>
+      <div class="trait-chips">
+        <span class="trait wide">مجال رؤية واسع</span>
+        <span class="trait bright">صورة مضيئة</span>
+      </div>
+    </div>
+
+    <div class="panel mag-card high reveal">
+      <h3>تكبير عالٍ — 400×</h3>
+      <canvas id="highCanvas" width="190" height="190" aria-label="مجال رؤية ضيق وصورة مظلمة"></canvas>
+      <div class="trait-chips">
+        <span class="trait narrow">مجال رؤية ضيق</span>
+        <span class="trait dark">صورة مظلمة</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout ok reveal">
+    <span class="ic" aria-hidden="true">✅</span>
+    <div>
+      <b>ابدأ بالتكبير المنخفض ثم انتقل إلى التكبير العالي.</b><br>
+      <b>السبب:</b>
+      مجال الرؤية يكون أوسع عند التكبير المنخفض، فيسهل العثور على الشيء المراد ملاحظته.
+    </div>
+  </div>
+</section>
+
+<section id="quiz">
+  <div class="sec-head reveal">
+    <span class="num">٥</span>
+    <h2>اختبر نفسك 📝</h2>
+  </div>
+
+  <p class="sec-sub reveal">٧ أسئلة من الدرس، مع تفسير مباشر لكل إجابة.</p>
+
+  <div class="panel quiz-card reveal" id="quizCard">
+    <div id="quizBody">
+      <div class="q-top">
+        <span id="qProgress">سؤال ١ من ٧</span>
+        <span id="qScore">النقاط: 0</span>
+      </div>
+
+      <div class="q-bar" aria-hidden="true"><i id="qBar"></i></div>
+      <div id="qText"></div>
+      <div class="q-opts" id="qOpts"></div>
+      <div class="q-why" id="qWhy" aria-live="polite"></div>
+
+      <div class="q-next-row">
+        <button class="btn primary small" id="qNext" style="display:none">التالي ◀</button>
+      </div>
+    </div>
+
+    <div class="q-result" id="qResult" style="display:none">
+      <div class="score" id="qFinalScore"></div>
+      <div class="msg" id="qMsg"></div>
+      <button class="btn primary" id="qRestart">🔁 أعد المحاولة</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="foot-grid">
+    <div>
+      <h3>🔬 مختبر المجهر التفاعلي</h3>
+      <p>درس «كيف نستخدم المجهر؟» — الفصل الخامس. محاكاة تعليمية مجانية بدون تسجيل أو إعلانات.</p>
+    </div>
+
+    <div>
+      <h3>🚀 النشر على GitHub Pages</h3>
+      <ol>
+        <li>ارفع الملف باسم <b>index.html</b> في مستودع عام.</li>
+        <li>افتح Settings ثم Pages.</li>
+        <li>اختر Branch: main والمجلد root ثم Save.</li>
+      </ol>
+    </div>
+
+    <div>
+      <h3>🧑‍🏫 للمعلمين</h3>
+      <p>يمكن تعديل الأسئلة والعينات من داخل الملف. لا يحتاج المشروع إلى سيرفر أو قاعدة بيانات.</p>
+    </div>
+  </div>
+
+  <div class="foot-bottom">
+    صُنع لطلاب العلوم — انشره، عدّله، وشاركه مجانًا.
+  </div>
+</footer>
+
+<div id="toastWrap" aria-live="polite" aria-atomic="false"></div>
+<div id="confettiWrap" aria-hidden="true"></div>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const lerp = (a,b,t) => a+(b-a)*t;
+const ease = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const coarse = matchMedia("(pointer: coarse)").matches;
+const ar = n => String(n).replace(/\d/g,d=>"٠١٢٤٥٦٧٨٩"[d]);
+
+const toastIcons = {
+  success:"✅",
+  danger:"⚠️",
+  warn:"🟡",
+  info:"💡"
+};
+
+function toast(message,type="info",duration=3400){
+  const wrap=$("toastWrap");
+  while(wrap.children.length>=3) wrap.firstElementChild.remove();
+
+  const el=document.createElement("div");
+  el.className=`toast ${type}`;
+
+  const icon=document.createElement("span");
+  icon.textContent=toastIcons[type]||"💡";
+
+  const text=document.createElement("span");
+  text.textContent=message;
+
+  el.append(icon,text);
+  wrap.appendChild(el);
+
+  setTimeout(()=>{
+    el.classList.add("out");
+    setTimeout(()=>el.remove(),260);
+  },duration);
+}
+
+const confettiColors=[
+  "#f0b445","#8fe83f","#3fd4f5",
+  "#ff5fa8","#4cc9f0","#3ddc84"
+];
+
+function confetti(x,y,count=28){
+  if(reduced) return;
+
+  for(let i=0;i<count;i++){
+    const piece=document.createElement("span");
+    const angle=Math.random()*Math.PI*2;
+    const distance=60+Math.random()*150;
+
+    piece.className="confetti";
+    piece.style.left=`${x}px`;
+    piece.style.top=`${y}px`;
+    piece.style.background=confettiColors[i%confettiColors.length];
+    piece.style.setProperty("--dx",`${Math.cos(angle)*distance}px`);
+    piece.style.setProperty("--dy",`${Math.sin(angle)*distance+130}px`);
+    piece.style.setProperty("--rot",`${Math.random()*720-360}deg`);
+    piece.style.setProperty("--dur",`${.8+Math.random()*.6}s`);
+
+    $("confettiWrap").appendChild(piece);
+    piece.addEventListener("animationend",()=>piece.remove(),{once:true});
+  }
+}
+
+/* الصوت */
+let audioContext=null;
+let masterGain=null;
+let soundOn=true;
+
+function ensureAudio(){
+  if(audioContext) return;
+
+  try{
+    audioContext=new (window.AudioContext||window.webkitAudioContext)();
+    masterGain=audioContext.createGain();
+    masterGain.gain.value=soundOn?.14:0;
+    masterGain.connect(audioContext.destination);
+  }catch{
+    audioContext=null;
+  }
+}
+
+document.addEventListener("pointerdown",()=>{
+  ensureAudio();
+  if(audioContext?.state==="suspended") audioContext.resume();
+},{passive:true});
+
+function beep(frequency,duration=.08,type="sine",volume=.4,delay=0){
+  if(!audioContext||!soundOn) return;
+
+  const time=audioContext.currentTime+delay;
+  const oscillator=audioContext.createOscillator();
+  const gain=audioContext.createGain();
+
+  oscillator.type=type;
+  oscillator.frequency.value=frequency;
+  gain.gain.setValueAtTime(volume,time);
+  gain.gain.exponentialRampToValueAtTime(.001,time+duration);
+
+  oscillator.connect(gain);
+  gain.connect(masterGain);
+  oscillator.start(time);
+  oscillator.stop(time+duration+.02);
+}
+
+const clickSound=()=>beep(660,.05,"square",.22);
+const lensSound=()=>{
+  beep(440,.04,"square",.25);
+  beep(560,.04,"square",.25,.07);
+};
+const successSound=()=>{
+  beep(523,.12,"sine",.4);
+  beep(659,.12,"sine",.4,.1);
+  beep(784,.2,"sine",.4,.2);
+};
+const wrongSound=()=>beep(150,.22,"sawtooth",.28);
+
+function crackSound(){
+  if(!audioContext||!soundOn) return;
+
+  const length=Math.floor(audioContext.sampleRate*.23);
+  const buffer=audioContext.createBuffer(1,length,audioContext.sampleRate);
+  const data=buffer.getChannelData(0);
+
+  for(let i=0;i<length;i++){
+    data[i]=(Math.random()*2-1)*Math.pow(1-i/length,2);
+  }
+
+  const source=audioContext.createBufferSource();
+  const filter=audioContext.createBiquadFilter();
+  const gain=audioContext.createGain();
+
+  source.buffer=buffer;
+  filter.type="lowpass";
+  filter.frequency.value=900;
+  gain.gain.value=.8;
+
+  source.connect(filter);
+  filter.connect(gain);
+  gain.connect(masterGain);
+  source.start();
+  beep(90,.28,"sine",.5);
+}
+
+$("soundBtn").addEventListener("click",()=>{
+  soundOn=!soundOn;
+  ensureAudio();
+
+  if(masterGain) masterGain.gain.value=soundOn?.14:0;
+
+  $("soundBtn").setAttribute("aria-pressed",String(soundOn));
+  $("soundBtn").setAttribute("aria-label",soundOn?"كتم الصوت":"تشغيل الصوت");
+  $("soundBtn").innerHTML=soundOn
+    ?'🔊 <span>الصوت</span>'
+    :'🔇 <span>صامت</span>';
+
+  if(soundOn) clickSound();
+});
+
+/* حالة الدرس */
+const defaults={
+  obj:4,
+  eye:10,
+  focus:72,
+  light:65,
+  u:0,
+  v:0,
+  specimen:"onion",
+  labels:true,
+  beam:true,
+  autoRot:!reduced
+};
+
+const state={...defaults};
+const objectives=[4,10,40];
+const sharpFocus=72;
+const focusTolerance={4:13,10:8,40:4.5};
+
+let cracked=false;
+let crashLock=false;
+let crackSeed=1;
+let challenging=false;
+let challengeStart=0;
+let challengeCenterStart=0;
+let slideEnterStart=0;
+let tourToken=0;
+let gl=null;
+
+const totalMagnification=()=>state.eye*state.obj;
+const viewScale=()=>totalMagnification()/40;
+const lightEfficiency=()=>Math.exp(-Math.pow((state.light-65)/28,2));
+const brightness=()=>clamp(
+  lightEfficiency()*clamp(1.35-totalMagnification()/500,.3,1.15),
+  0,1
+);
+const blurAmount=()=>{
+  const excess=Math.max(
+    0,
+    Math.abs(state.focus-sharpFocus)-focusTolerance[state.obj]
+  );
+  return excess*.22+(cracked?6:0);
+};
+
+const targets={
+  turretRotation:0,
+  headY:0,
+  mirrorTilt:0,
+  slideX:0,
+  slideZ:0,
+  beamOpacity:0,
+  spotIntensity:0,
+  knobRotation:0
+};
+
+function computeTargets(){
+  targets.turretRotation=
+    -objectives.indexOf(state.obj)*(Math.PI*2/3);
+  targets.headY=2.11+(state.focus/100)*1.15;
+  targets.mirrorTilt=(state.light/100-.5)*1.6;
+  targets.slideX=state.u*.004;
+  targets.slideZ=state.v*.0028;
+  targets.beamOpacity=.22*lightEfficiency();
+  targets.spotIntensity=2.4*lightEfficiency();
+  targets.knobRotation=(state.focus/100)*Math.PI*6;
+}
+
+function syncUI(){
+  document.querySelectorAll("#objSeg button").forEach(button=>{
+    const active=Number(button.dataset.obj)===state.obj;
+    button.classList.toggle("on",active);
+    button.setAttribute("aria-pressed",String(active));
+  });
+
+  document.querySelectorAll("#eyeSeg button").forEach(button=>{
+    const active=Number(button.dataset.eye)===state.eye;
+    button.classList.toggle("on",active);
+    button.setAttribute("aria-pressed",String(active));
+  });
+
+  $("focusRange").value=state.focus;
+  $("lightRange").value=state.light;
+  $("uRange").value=state.u;
+  $("vRange").value=state.v;
+
+  $("focusOut").textContent=Math.round(state.focus);
+  $("lightOut").textContent=Math.round(state.light);
+  $("uOut").textContent=Math.round(state.u);
+  $("vOut").textContent=Math.round(state.v);
+  $("objOut").textContent=`${state.obj}×`;
+  $("eyeOut").textContent=`${state.eye}×`;
+
+  $("specimenSel").value=state.specimen;
+  $("labelsTgl").checked=state.labels;
+  $("beamTgl").checked=state.beam;
+  $("rotTgl").checked=state.autoRot;
+
+  $("calcEye").value=state.eye;
+  $("calcObj").value=state.obj;
+
+  const magnification=totalMagnification();
+  $("magBig").textContent=`${magnification}×`;
+  $("magFormula").textContent=
+    `العينية ${state.eye} × الشيئية ${state.obj}`;
+  $("calcResult").textContent=`${magnification}×`;
+
+  const fieldWidth=clamp(100*(1.15-magnification/650),8,100);
+  $("fieldMeter").style.width=`${fieldWidth}%`;
+  $("fieldMeter").style.background=
+    magnification<=80
+      ?"var(--acid)"
+      :magnification<=240
+        ?"var(--brass)"
+        :"var(--magenta)";
+
+  $("fieldLabel").textContent=
+    magnification<=80?"واسع":magnification<=240?"متوسط":"ضيق";
+
+  const lightPercent=Math.round(brightness()*100);
+  $("brightMeter").style.width=`${lightPercent}%`;
+  $("brightMeter").style.background="var(--brass)";
+  $("brightLabel").textContent=`${lightPercent}%`;
+
+  const focusStatus=$("focusStatus");
+
+  if(cracked){
+    focusStatus.className="pill danger";
+    focusStatus.textContent="الشريحة مكسورة";
+  }else if(state.focus<=8){
+    focusStatus.className="pill danger";
+    focusStatus.textContent="خطر اصطدام ⚠️";
+  }else if(blurAmount()<.5){
+    focusStatus.className="pill ok";
+    focusStatus.textContent="واضح ✅";
+  }else{
+    focusStatus.className="pill warn";
+    focusStatus.textContent="يحتاج ضبطًا";
+  }
+
+  if(gl){
+    gl.labelsLayer.style.display=state.labels?"":"none";
+    gl.beamGroup.visible=state.beam;
+  }
+}
+
+function applyState(patch){
+  Object.assign(state,patch);
+
+  state.u=clamp(state.u,-100,100);
+  state.v=clamp(state.v,-100,100);
+  state.focus=clamp(state.focus,0,100);
+  state.light=clamp(state.light,0,100);
+
+  computeTargets();
+  syncUI();
+
+  if(gl) gl.shadowDirty=true;
+}
+
+/* رسم العينات */
+function drawSpecimen(context,kind,time){
+  if(kind==="onion"){
+    const width=56;
+    const height=26;
+
+    for(let row=-4;row<4;row++){
+      for(let column=-3;column<3;column++){
+        const x=column*width+(row%2?width/2:0);
+        const y=row*height;
+        const radius=8;
+
+        context.beginPath();
+        context.moveTo(x-width/2+radius,y-height/2);
+        context.arcTo(x+width/2,y-height/2,x+width/2,y+height/2,radius);
+        context.arcTo(x+width/2,y+height/2,x-width/2,y+height/2,radius);
+        context.arcTo(x-width/2,y+height/2,x-width/2,y-height/2,radius);
+        context.arcTo(x-width/2,y-height/2,x+width/2,y-height/2,radius);
+        context.closePath();
+
+        context.fillStyle="rgba(232,161,60,.30)";
+        context.fill();
+        context.strokeStyle="#a86a15";
+        context.lineWidth=2.2;
+        context.stroke();
+
+        context.beginPath();
+        context.arc(x+width*.18,y+height*.1,4.6,0,Math.PI*2);
+        context.fillStyle="#7a4310";
+        context.fill();
+      }
+    }
+  }else if(kind==="e"){
+    context.font="900 170px Georgia,serif";
+    context.textAlign="center";
+    context.textBaseline="middle";
+    context.fillStyle="#22303a";
+    context.fillText("e",0,8);
+  }else{
+    context.save();
+    context.rotate(Math.sin(time*1.2)*.06);
+
+    context.beginPath();
+    context.ellipse(0,0,60,26,0,0,Math.PI*2);
+    context.fillStyle="rgba(126,232,63,.35)";
+    context.fill();
+    context.strokeStyle="#4faf22";
+    context.lineWidth=2.5;
+    context.stroke();
+
+    for(let i=0;i<40;i++){
+      const angle=i/40*Math.PI*2;
+      const wiggle=Math.sin(time*4+i)*3;
+      const x=Math.cos(angle)*60;
+      const y=Math.sin(angle)*26;
+
+      context.beginPath();
+      context.moveTo(x,y);
+      context.lineTo(
+        x+Math.cos(angle)*(8+wiggle),
+        y+Math.sin(angle)*(8+wiggle)
+      );
+      context.strokeStyle="rgba(79,175,34,.8)";
+      context.lineWidth=1.4;
+      context.stroke();
+    }
+
+    context.beginPath();
+    context.ellipse(-8,0,14,9,.4,0,Math.PI*2);
+    context.fillStyle="#3f8f1f";
+    context.fill();
+
+    context.beginPath();
+    context.arc(34,0,6+Math.sin(time*3)*1.5,0,Math.PI*2);
+    context.fillStyle="rgba(63,143,31,.6)";
+    context.fill();
+
+    context.restore();
+  }
+}
+
+function prepareCanvas(canvas,size){
+  const ratio=Math.min(devicePixelRatio||1,2);
+  const pixels=Math.round(size*ratio);
+
+  if(canvas.width!==pixels||canvas.height!==pixels){
+    canvas.width=pixels;
+    canvas.height=pixels;
+  }
+
+  const context=canvas.getContext("2d");
+  context.setTransform(ratio,0,0,ratio,0,0);
+  return context;
+}
+
+function drawArrow(context,x,y,dx,dy,color){
+  const length=32;
+  const endX=x+dx*length;
+  const endY=y+dy*length;
+
+  context.strokeStyle=color;
+  context.fillStyle=color;
+  context.lineWidth=5;
+  context.lineCap="round";
+
+  context.beginPath();
+  context.moveTo(x-dx*length*.4,y-dy*length*.4);
+  context.lineTo(endX,endY);
+  context.stroke();
+
+  const angle=Math.atan2(dy,dx);
+  context.beginPath();
+  context.moveTo(endX+Math.cos(angle)*10,endY+Math.sin(angle)*10);
+  context.lineTo(endX+Math.cos(angle+2.5)*9,endY+Math.sin(angle+2.5)*9);
+  context.lineTo(endX+Math.cos(angle-2.5)*9,endY+Math.sin(angle-2.5)*9);
+  context.closePath();
+  context.fill();
+}
+
+function drawField(canvas,size,options){
+  const context=prepareCanvas(canvas,size);
+  const radius=size/2-3;
+  const light=options.bright;
+
+  context.clearRect(0,0,size,size);
+  context.save();
+  context.translate(size/2,size/2);
+
+  context.beginPath();
+  context.arc(0,0,radius,0,Math.PI*2);
+  context.clip();
+
+  context.fillStyle=`rgb(
+    ${Math.round(18+217*light)},
+    ${Math.round(22+207*light)},
+    ${Math.round(26+182*light)}
+  )`;
+  context.fillRect(-radius,-radius,size,size);
+
+  context.save();
+  context.rotate(options.rotation??Math.PI);
+  context.scale(options.scale,options.scale);
+  context.translate(options.u||0,options.v||0);
+
+  if("filter" in context){
+    context.filter=options.blur>.25
+      ?`blur(${options.blur.toFixed(1)}px)`
+      :"none";
+  }
+
+  drawSpecimen(context,options.specimen,options.time||0);
+  context.restore();
+
+  const vignette=context.createRadialGradient(
+    0,0,radius*.55,
+    0,0,radius
+  );
+  vignette.addColorStop(0,"rgba(0,0,0,0)");
+  vignette.addColorStop(1,"rgba(0,0,0,.55)");
+  context.fillStyle=vignette;
+  context.fillRect(-radius,-radius,size,size);
+
+  context.strokeStyle="rgba(0,0,0,.16)";
+  context.lineWidth=1;
+  context.beginPath();
+  context.moveTo(-13,0);
+  context.lineTo(13,0);
+  context.moveTo(0,-13);
+  context.lineTo(0,13);
+  context.stroke();
+
+  if(options.arrow){
+    drawArrow(
+      context,0,radius*.62,
+      options.arrow[0],options.arrow[1],
+      options.arrowColor||"#0a7ea3"
+    );
+  }
+
+  context.restore();
+}
+
+function seededRandom(seed){
+  return()=>{
+    seed|=0;
+    seed=seed+0x6D2B79F5|0;
+    let value=Math.imul(seed^seed>>>15,1|seed);
+    value=value+Math.imul(value^value>>>7,61|value)^value;
+    return((value^value>>>14)>>>0)/4294967296;
+  };
+}
+
+function drawCracks(canvas,size){
+  const context=prepareCanvas(canvas,size);
+  const random=seededRandom(crackSeed);
+  const radius=size/2;
+
+  context.save();
+  context.translate(size/2,size/2);
+  context.strokeStyle="rgba(245,250,255,.92)";
+  context.lineWidth=2.4;
+  context.shadowColor="rgba(255,255,255,.8)";
+  context.shadowBlur=5;
+
+  for(let i=0;i<6;i++){
+    let angle=random()*Math.PI*2;
+    let x=(random()-.5)*30;
+    let y=(random()-.5)*30;
+
+    context.beginPath();
+    context.moveTo(x,y);
+
+    for(let segment=0;segment<4;segment++){
+      angle+=(random()-.5)*.9;
+      x+=Math.cos(angle)*radius*.24;
+      y+=Math.sin(angle)*radius*.24;
+      context.lineTo(x,y);
+    }
+
+    context.stroke();
+  }
+
+  context.restore();
+}
+
+function drawEyepiece(time){
+  drawField($("eyeCanvas"),280,{
+    scale:viewScale(),
+    bright:brightness(),
+    specimen:state.specimen,
+    u:state.u,
+    v:state.v,
+    blur:blurAmount(),
+    rotation:Math.PI,
+    time
+  });
+
+  if(cracked) drawCracks($("eyeCanvas"),280);
+
+  if(challenging){
+    const context=prepareCanvas($("eyeCanvas"),280);
+    context.save();
+    context.translate(140,140);
+    context.strokeStyle="#8fe83f";
+    context.lineWidth=2.5;
+    context.setLineDash([6,5]);
+    context.shadowColor="#8fe83f";
+    context.shadowBlur=8;
+    context.beginPath();
+    context.arc(0,0,17,0,Math.PI*2);
+    context.stroke();
+    context.restore();
+  }
+}
+
+/* سحب صورة المنظار */
+const eyepieceCanvas=$("eyeCanvas");
+let dragging=false;
+let previousX=0;
+let previousY=0;
+
+function canvasScale(){
+  return 280/Math.max(1,eyepieceCanvas.getBoundingClientRect().width);
+}
+
+eyepieceCanvas.addEventListener("pointerdown",event=>{
+  dragging=true;
+  previousX=event.clientX;
+  previousY=event.clientY;
+  eyepieceCanvas.setPointerCapture(event.pointerId);
+});
+
+eyepieceCanvas.addEventListener("pointermove",event=>{
+  if(!dragging) return;
+
+  const scale=viewScale();
+  const correction=canvasScale();
+
+  applyState({
+    u:state.u-(event.clientX-previousX)*correction/scale,
+    v:state.v-(event.clientY-previousY)*correction/scale
+  });
+
+  previousX=event.clientX;
+  previousY=event.clientY;
+});
+
+function endEyepieceDrag(){
+  dragging=false;
+}
+
+eyepieceCanvas.addEventListener("pointerup",endEyepieceDrag);
+eyepieceCanvas.addEventListener("pointercancel",endEyepieceDrag);
+eyepieceCanvas.addEventListener("lostpointercapture",endEyepieceDrag);
+
+function nudge(imageX,imageY){
+  const step=10/viewScale();
+  applyState({
+    u:state.u-imageX*step,
+    v:state.v-imageY*step
+  });
+  clickSound();
+}
+
+$("padUp").addEventListener("click",()=>nudge(0,-1));
+$("padDown").addEventListener("click",()=>nudge(0,1));
+$("padLeft").addEventListener("click",()=>nudge(-1,0));
+$("padRight").addEventListener("click",()=>nudge(1,0));
+
+eyepieceCanvas.addEventListener("keydown",event=>{
+  const directions={
+    ArrowUp:[0,-1],
+    ArrowDown:[0,1],
+    ArrowLeft:[-1,0],
+    ArrowRight:[1,0]
+  };
+
+  if(directions[event.key]){
+    event.preventDefault();
+    nudge(...directions[event.key]);
+  }
+});
+
+/* التحدي */
+function startChallenge(){
+  challenging=true;
+  challengeCenterStart=0;
+  challengeStart=performance.now();
+
+  const angle=Math.random()*Math.PI*2;
+  const distance=70+Math.random()*45;
+
+  applyState({
+    u:clamp(Math.cos(angle)*distance,-100,100),
+    v:clamp(Math.sin(angle)*distance,-100,100)
+  });
+
+  $("challengeBox").classList.add("active");
+  $("challengeBtn").textContent="إيقاف";
+  toast("وسّط العينة داخل الدائرة. إذا لم تجدها، جرّب تكبيرًا أقل.","info",4200);
+  clickSound();
+}
+
+function stopChallenge(won){
+  challenging=false;
+  $("challengeBox").classList.remove("active");
+  $("challengeBtn").textContent="ابدأ";
+
+  if(won){
+    const seconds=((performance.now()-challengeStart)/1000).toFixed(1);
+    const rect=eyepieceCanvas.getBoundingClientRect();
+
+    confetti(rect.left+rect.width/2,rect.top+rect.height/2,34);
+    successSound();
+    toast(`أحسنت! أنهيت التحدي في ${seconds} ثانية. الصورة تتحرك عكس الشريحة.`,"success",5000);
+  }
+}
+
+$("challengeBtn").addEventListener("click",()=>{
+  challenging?stopChallenge(false):startChallenge();
+});
+
+function updateChallenge(now){
+  if(!challenging) return;
+
+  $("chTime").textContent=`${((now-challengeStart)/1000).toFixed(1)}s`;
+
+  const distance=Math.hypot(state.u,state.v)*viewScale();
+  $("chDist").textContent=`${Math.round(distance)}px`;
+
+  if(distance<16){
+    if(!challengeCenterStart) challengeCenterStart=now;
+    if(now-challengeCenterStart>600) stopChallenge(true);
+  }else{
+    challengeCenterStart=0;
+  }
+}
+
+/* كسر الشريحة */
+function crackSlide(){
+  if(cracked||crashLock) return;
+
+  cracked=true;
+  crashLock=true;
+  crackSeed=Math.floor(Math.random()*1e6);
+
+  crackSound();
+  $("viewport").classList.add("shake");
+  setTimeout(()=>$("viewport").classList.remove("shake"),500);
+
+  if(gl){
+    gl.crackLines.visible=true;
+    gl.shadowDirty=true;
+  }
+
+  syncUI();
+  toast("اصطدمت العدسة بالشريحة وانكسرت! لذلك ننظر من الجانب أثناء التقريب.","danger",5200);
+
+  setTimeout(()=>{
+    cracked=false;
+    crashLock=false;
+
+    if(gl) gl.crackLines.visible=false;
+
+    addTween("focus",state.focus,sharpFocus,700);
+    toast("تم استبدال الشريحة. تابع التجربة بحذر.","info");
+    syncUI();
+  },2600);
+}
+
+$("crashBtn").addEventListener("click",()=>{
+  if(crashLock) return;
+
+  stopTour();
+  applyState({obj:40});
+  lensSound();
+  toast("سنقرّب العدسة دون النظر من الجانب؛ هذا هو الخطأ الشائع.","warn");
+  addTween("focus",state.focus,0,1100);
+});
+
+/* التحريك المتدرج */
+const tweens=new Map();
+
+function addTween(key,from,to,duration){
+  tweens.set(key,{
+    from,to,
+    start:performance.now(),
+    duration
+  });
+}
+
+function updateTweens(now){
+  let changed=false;
+
+  for(const[key,tween] of tweens){
+    const progress=clamp((now-tween.start)/tween.duration,0,1);
+    state[key]=lerp(tween.from,tween.to,ease(progress));
+    changed=true;
+
+    if(progress>=1) tweens.delete(key);
+  }
+
+  if(changed){
+    computeTargets();
+    syncUI();
+    if(gl) gl.shadowDirty=true;
+  }
+}
+
+/* أدوات التحكم */
+document.querySelectorAll("#objSeg button").forEach(button=>{
+  button.addEventListener("click",()=>{
+    applyState({obj:Number(button.dataset.obj)});
+    lensSound();
+  });
+});
+
+document.querySelectorAll("#eyeSeg button").forEach(button=>{
+  button.addEventListener("click",()=>{
+    applyState({eye:Number(button.dataset.eye)});
+    clickSound();
+  });
+});
+
+$("focusRange").addEventListener("input",event=>{
+  tweens.delete("focus");
+  applyState({focus:Number(event.target.value)});
+});
+
+$("lightRange").addEventListener("input",event=>{
+  tweens.delete("light");
+  applyState({light:Number(event.target.value)});
+});
+
+$("uRange").addEventListener("input",event=>{
+  applyState({u:Number(event.target.value)});
+});
+
+$("vRange").addEventListener("input",event=>{
+  applyState({v:Number(event.target.value)});
+});
+
+$("specimenSel").addEventListener("change",event=>{
+  applyState({specimen:event.target.value});
+  refreshStaticViews();
+  clickSound();
+});
+
+$("labelsTgl").addEventListener("change",event=>{
+  applyState({labels:event.target.checked});
+  clickSound();
+});
+
+$("beamTgl").addEventListener("change",event=>{
+  applyState({beam:event.target.checked});
+  clickSound();
+});
+
+$("rotTgl").addEventListener("change",event=>{
+  applyState({autoRot:event.target.checked});
+  clickSound();
+});
+
+$("calcEye").addEventListener("change",event=>{
+  applyState({eye:Number(event.target.value)});
+  clickSound();
+});
+
+$("calcObj").addEventListener("change",event=>{
+  applyState({obj:Number(event.target.value)});
+  lensSound();
+});
+
+$("resetBtn").addEventListener("click",()=>{
+  stopTour();
+  tweens.clear();
+
+  if(challenging) stopChallenge(false);
+
+  cracked=false;
+  crashLock=false;
+
+  if(gl) gl.crackLines.visible=false;
+
+  applyState({...defaults});
+  flyToPreset("overview");
+  refreshStaticViews();
+  toast("تمت إعادة أدوات المجهر إلى الوضع الأصلي.","info");
+  clickSound();
+});
+
+$("randomBtn").addEventListener("click",()=>{
+  stopTour();
+
+  const specimens=["onion","e","para"];
+
+  applyState({
+    specimen:specimens[Math.floor(Math.random()*3)],
+    obj:objectives[Math.floor(Math.random()*3)],
+    eye:[5,10,16][Math.floor(Math.random()*3)],
+    u:Math.random()*160-80,
+    v:Math.random()*160-80,
+    focus:sharpFocus+(Math.random()<.5?-1:1)*(12+Math.random()*18),
+    light:30+Math.random()*60
+  });
+
+  refreshStaticViews();
+  toast("عينة جديدة! اضبط التركيز ووسّط العينة.","info");
+  lensSound();
+});
+
+function downloadCanvas(canvas,filename){
+  const anchor=document.createElement("a");
+  anchor.download=filename;
+  anchor.href=canvas.toDataURL("image/png");
+  anchor.click();
+}
+
+$("shotBtn").addEventListener("click",()=>{
+  if(gl){
+    gl.renderer.render(gl.scene,gl.camera);
+    downloadCanvas(gl.canvas,"microscope-3d.png");
+    toast("تم حفظ لقطة المجهر.","success");
+  }else{
+    toast("العرض ثلاثي الأبعاد غير متاح على هذا الجهاز.","warn");
+  }
+
+  clickSound();
+});
+
+$("eyeShotBtn").addEventListener("click",()=>{
+  drawEyepiece(performance.now()/1000);
+  downloadCanvas($("eyeCanvas"),"eyepiece-view.png");
+  toast("تم حفظ صورة المنظار.","success");
+  clickSound();
+});
+
+/* مقارنة الاتجاهات */
+const directions=[
+  [1,0,"يمينًا","يسارًا"],
+  [-1,0,"يسارًا","يمينًا"],
+  [0,-1,"لأعلى","لأسفل"],
+  [0,1,"لأسفل","لأعلى"]
+];
+
+let directionIndex=0;
+
+function drawInversionDemo(){
+  const direction=directions[directionIndex];
+
+  drawField($("realCanvas"),230,{
+    scale:.8,
+    bright:.92,
+    specimen:state.specimen,
+    rotation:0,
+    time:1,
+    arrow:[direction[0],direction[1]],
+    arrowColor:"#0a7ea3"
+  });
+
+  drawField($("scopeCanvas"),230,{
+    scale:.8,
+    bright:.92,
+    specimen:state.specimen,
+    rotation:Math.PI,
+    time:1,
+    arrow:[direction[0],direction[1]],
+    arrowColor:"#c2185b"
+  });
+
+  $("dirLabel").textContent=
+    `أحرّك الشريحة ${direction[2]} ← الصورة تتحرك ${direction[3]}`;
+}
+
+$("dirBtn").addEventListener("click",()=>{
+  directionIndex=(directionIndex+1)%directions.length;
+  drawInversionDemo();
+  clickSound();
+});
+
+function drawMagnificationExamples(){
+  drawField($("lowCanvas"),190,{
+    scale:.55,
+    bright:.98,
+    specimen:state.specimen,
+    rotation:Math.PI,
+    time:1
+  });
+
+  drawField($("highCanvas"),190,{
+    scale:6,
+    bright:.42,
+    specimen:state.specimen,
+    rotation:Math.PI,
+    time:1
+  });
+}
+
+function refreshStaticViews(){
+  drawInversionDemo();
+  drawMagnificationExamples();
+}
+
+/* الجولة التعليمية */
+const cameraPresets={
+  overview:{position:[4.8,3.8,6.6],target:[0,2.5,0]},
+  stage:{position:[2.9,3.5,3.5],target:[0,2.05,0]},
+  mirror:{position:[2.7,1.5,3.3],target:[0,1.2,0]},
+  side:{position:[6.3,2.4,.5],target:[0,2.1,0]},
+  eyepiece:{position:[1.7,4.9,2.7],target:[0,3.6,0]}
+};
+
+let cameraFlight=null;
+
+function flyToPreset(name){
+  if(!gl) return;
+
+  const preset=cameraPresets[name];
+
+  cameraFlight={
+    fromPosition:gl.camera.position.clone(),
+    toPosition:new gl.THREE.Vector3(...preset.position),
+    fromTarget:gl.controls.target.clone(),
+    toTarget:new gl.THREE.Vector3(...preset.target),
+    start:performance.now(),
+    duration:reduced?1:1200
+  };
+}
+
+function highlightPart(key,color="#f0b445"){
+  if(!gl) return;
+
+  const positions={
+    base:[.75,.35,.5],
+    turret:[0,gl.head.position.y+1,0],
+    mirror:[0,1.15,.3],
+    stage:[.7,2.05,.4],
+    knob:[.45,2.65,-.8],
+    eyepiece:[0,gl.head.position.y+2.5,0]
+  };
+
+  gl.highlight.position.set(...positions[key]);
+  gl.highlight.material.color.set(color);
+  gl.highlightUntil=performance.now()+2500;
+}
+
+const lessonSteps=[
+  {
+    text:"ضع المجهر في مكان مستوٍ ومضيء بعيدًا عن الشمس المباشرة.",
+    run(){
+      flyToPreset("overview");
+      addTween("light",state.light,65,900);
+      highlightPart("base");
+    }
+  },
+  {
+    text:"اضبط العدسة الشيئية على أقل تكبير: 4×.",
+    run(){
+      applyState({obj:4});
+      lensSound();
+      flyToPreset("stage");
+      highlightPart("turret");
+    }
+  },
+  {
+    text:"انظر من العينية واضبط زاوية العاكس حتى تصبح الرؤية مضيئة.",
+    run(){
+      flyToPreset("mirror");
+      applyState({light:15});
+      addTween("light",15,65,1700);
+      highlightPart("mirror","#3fd4f5");
+    }
+  },
+  {
+    text:"ضع الشريحة المحضّرة على المنضدة وثبتها.",
+    run(){
+      applyState({u:0,v:0});
+      slideEnterStart=performance.now();
+      flyToPreset("stage");
+      highlightPart("stage","#8fe83f");
+    }
+  },
+  {
+    text:"انظر من الجانب وقرّب العدسة الشيئية من الشريحة بحذر.",
+    run(){
+      flyToPreset("side");
+      addTween("focus",state.focus,10,1500);
+      highlightPart("knob","#ffb020");
+      toast("انظر من الجانب، وليس من العينية، أثناء التقريب.","warn");
+    }
+  },
+  {
+    text:"انظر من العينية واضبط الصورة أثناء إبعاد العدسة عن الشريحة.",
+    run(){
+      flyToPreset("eyepiece");
+      addTween("focus",state.focus,sharpFocus,1600);
+      highlightPart("eyepiece","#8fe83f");
+
+      const token=tourToken;
+      setTimeout(()=>{
+        if(token===tourToken&&!cracked){
+          toast("الصورة الآن واضحة ومضيئة.","success");
+          successSound();
+        }
+      },1700);
+    }
+  }
+];
+
+function markActiveStep(index){
+  document.querySelectorAll(".step-card").forEach(card=>{
+    card.classList.toggle(
+      "active",
+      Number(card.dataset.step)===index
+    );
+  });
+}
+
+function applyLessonStep(index,scroll=true){
+  markActiveStep(index);
+  lessonSteps[index].run();
+
+  if(scroll){
+    $("lab").scrollIntoView({
+      behavior:reduced?"auto":"smooth",
+      block:"start"
+    });
+  }
+}
+
+document.querySelectorAll(".step-card").forEach(card=>{
+  card.querySelector(".step-apply").addEventListener("click",()=>{
+    stopTour();
+    applyLessonStep(Number(card.dataset.step));
+    clickSound();
+  });
+});
+
+function stopTour(){
+  tourToken++;
+  $("captionBar").classList.remove("show");
+}
+
+$("capStop").addEventListener("click",()=>{
+  stopTour();
+  clickSound();
+});
+
+$("tourBtn").addEventListener("click",()=>{
+  const token=++tourToken;
+  let index=0;
+
+  $("lab").scrollIntoView({
+    behavior:reduced?"auto":"smooth",
+    block:"start"
+  });
+
+  function nextStep(){
+    if(token!==tourToken) return;
+
+    if(index>=lessonSteps.length){
+      stopTour();
+      toast("اكتملت الخطوات الستة. جرّب استخدامها بنفسك الآن.","success");
+      successSound();
+      return;
+    }
+
+    $("captionBar").classList.add("show");
+    $("capNum").textContent=`${ar(index+1)}/٦`;
+    $("capTxt").textContent=lessonSteps[index].text;
+
+    applyLessonStep(index,false);
+    index++;
+
+    setTimeout(nextStep,3400);
+  }
+
+  setTimeout(nextStep,600);
+  clickSound();
+});
+
+/* الاختبار */
+const questions=[
+  {
+    question:"أول خطوة عند استخدام المجهر: نضعه في مكان…",
+    answer:"مستوٍ ومضيء بعيدًا عن أشعة الشمس المباشرة",
+    options:[
+      "مستوٍ ومضيء بعيدًا عن أشعة الشمس المباشرة",
+      "قريبًا من نافذة تدخل منها الشمس مباشرة",
+      "مظلم تمامًا",
+      "مائل قليلًا لتثبيت الشريحة"
+    ],
+    explanation:"المكان المستوي يثبت المجهر، والإضاءة غير المباشرة تعطي رؤية مضيئة وتحمي العين."
+  },
+  {
+    question:"نبدأ الملاحظة بالتكبير المنخفض لأن…",
+    answer:"مجال الرؤية يكون أوسع فيسهل العثور على الشيء",
+    options:[
+      "مجال الرؤية يكون أوسع فيسهل العثور على الشيء",
+      "الصورة تكون مظلمة",
+      "مجال الرؤية يكون ضيقًا",
+      "التكبير المنخفض يكبر الصورة أكثر"
+    ],
+    explanation:"مجال الرؤية الأوسع يجعل العثور على العينة أسهل، ثم ننتقل إلى التكبير العالي."
+  },
+  {
+    question:"صورة الجسم تحت المجهر تظهر…",
+    answer:"مقلوبة من أعلى لأسفل ومعكوسة من اليمين لليسار",
+    options:[
+      "مقلوبة من أعلى لأسفل ومعكوسة من اليمين لليسار",
+      "كما هي في الحقيقة تمامًا",
+      "مكبرة فقط بدون قلب",
+      "مقلوبة فقط بدون عكس"
+    ],
+    explanation:"الصورة في المجهر الضوئي المركب مقلوبة رأسيًا ومعكوسة أفقيًا."
+  },
+  {
+    question:"لتحريك الصورة إلى اليمين، أحرّك الشريحة نحو…",
+    answer:"اليسار",
+    options:["اليسار","اليمين","الأعلى","لا أحرّك الشريحة"],
+    explanation:"نحرك الشريحة في الاتجاه المعاكس للاتجاه الذي نريد أن تتحرك إليه الصورة."
+  },
+  {
+    question:"عينية 10× وشيئية 40×؛ التكبير الكلي يساوي…",
+    answer:"400×",
+    options:["400×","50×","40×","4000×"],
+    explanation:"تكبير المجهر = 10 × 40 = 400×."
+  },
+  {
+    question:"عند استخدام تكبير عالٍ يكون مجال الرؤية والصورة…",
+    answer:"ضيقًا ومظلمة",
+    options:[
+      "ضيقًا ومظلمة",
+      "واسعًا ومضيئة",
+      "واسعًا ومظلمة",
+      "ضيقًا ومضيئة"
+    ],
+    explanation:"كلما زاد التكبير ضاق مجال الرؤية وأصبحت الصورة أقل سطوعًا."
+  },
+  {
+    question:"ننظر من الجانب أثناء تقريب العدسة من الشريحة حتى…",
+    answer:"نتجنب اصطدام العدسة بالشريحة وكسرها",
+    options:[
+      "نتجنب اصطدام العدسة بالشريحة وكسرها",
+      "نرى الصورة أكبر",
+      "نضبط الإضاءة",
+      "نثبت المشابك"
+    ],
+    explanation:"النظر من الجانب يمنع اصطدام العدسة الشيئية بالشريحة وكسرها."
+  }
+];
+
+let quizRun=[];
+let questionIndex=0;
+let quizScore=0;
+let answerLocked=false;
+const optionLetters=["أ","ب","ج","د"];
+
+function shuffle(array){
+  const result=[...array];
+
+  for(let i=result.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [result[i],result[j]]=[result[j],result[i]];
+  }
+
+  return result;
+}
+
+function startQuiz(){
+  quizRun=questions.map(question=>({
+    ...question,
+    options:shuffle(question.options)
+  }));
+
+  questionIndex=0;
+  quizScore=0;
+  $("quizBody").style.display="";
+  $("qResult").style.display="none";
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answerLocked=false;
+  const question=quizRun[questionIndex];
+
+  $("qProgress").textContent=
+    `سؤال ${ar(questionIndex+1)} من ${ar(quizRun.length)}`;
+  $("qScore").textContent=`النقاط: ${quizScore}`;
+  $("qBar").style.width=
+    `${questionIndex/quizRun.length*100}%`;
+  $("qText").textContent=question.question;
+  $("qWhy").className="q-why";
+  $("qWhy").textContent="";
+  $("qNext").style.display="none";
+
+  const options=$("qOpts");
+  options.replaceChildren();
+
+  question.options.forEach((option,index)=>{
+    const button=document.createElement("button");
+    button.className="q-opt";
+    button.type="button";
+
+    const letter=document.createElement("span");
+    letter.className="letter";
+    letter.textContent=optionLetters[index];
+
+    const text=document.createElement("span");
+    text.textContent=option;
+
+    button.append(letter,text);
+    button.addEventListener("click",()=>answerQuestion(button,option));
+    options.appendChild(button);
+  });
+}
+
+function answerQuestion(selectedButton,selectedOption){
+  if(answerLocked) return;
+
+  answerLocked=true;
+  const question=quizRun[questionIndex];
+  const correct=selectedOption===question.answer;
+
+  document.querySelectorAll(".q-opt").forEach((button,index)=>{
+    button.disabled=true;
+
+    if(question.options[index]===question.answer){
+      button.classList.add("correct");
+    }
+  });
+
+  if(correct){
+    quizScore++;
+    successSound();
+  }else{
+    selectedButton.classList.add("wrong");
+    wrongSound();
+  }
+
+  $("qScore").textContent=`النقاط: ${quizScore}`;
+
+  const explanation=$("qWhy");
+  explanation.className=`q-why show ${correct?"good":"bad"}`;
+  explanation.textContent=correct
+    ?`إجابة صحيحة! ${question.explanation}`
+    :`الإجابة الصحيحة: ${question.answer}. ${question.explanation}`;
+
+  $("qNext").style.display="";
+  $("qNext").textContent=
+    questionIndex===quizRun.length-1
+      ?"النتيجة 🏁"
+      :"التالي ◀";
+}
+
+$("qNext").addEventListener("click",()=>{
+  questionIndex++;
+  clickSound();
+
+  if(questionIndex>=quizRun.length){
+    $("quizBody").style.display="none";
+    $("qResult").style.display="";
+    $("qBar").style.width="100%";
+    $("qFinalScore").textContent=
+      `${quizScore} / ${quizRun.length}`;
+
+    $("qMsg").textContent=
+      quizScore===7
+        ?"🏆 ممتاز! أتقنت استخدام المجهر."
+        :quizScore>=5
+          ?"🌟 رائع! راجع النقاط التي أخطأت فيها."
+          :quizScore>=3
+            ?"👍 بداية جيدة؛ أعد الجولة التعليمية."
+            :"🔬 راجع الخطوات ثم أعد المحاولة.";
+
+    if(quizScore>=5){
+      const rect=$("quizCard").getBoundingClientRect();
+      confetti(rect.left+rect.width/2,rect.top+80,40);
+      successSound();
+    }
+  }else{
+    renderQuestion();
+  }
+});
+
+$("qRestart").addEventListener("click",()=>{
+  startQuiz();
+  clickSound();
+});
+
+/* المجهر ثلاثي الأبعاد */
+async function initialize3D(){
+  const THREE=await import("three");
+  const {OrbitControls}=await import(
+    "three/addons/controls/OrbitControls.js"
+  );
+
+  const canvas=$("glCanvas");
+  const viewport=$("viewport");
+
+  const renderer=new THREE.WebGLRenderer({
+    canvas,
+    antialias:true,
+    alpha:true,
+    powerPreference:"high-performance"
+  });
+
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,coarse?1.5:2));
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.12;
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate=false;
+
+  const scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x081a22,.038);
+
+  const camera=new THREE.PerspectiveCamera(46,1,.1,60);
+  camera.position.set(...cameraPresets.overview.position);
+
+  const controls=new OrbitControls(camera,canvas);
+  controls.target.set(...cameraPresets.overview.target);
+  controls.enableDamping=true;
+  controls.dampingFactor=.065;
+  controls.minDistance=3;
+  controls.maxDistance=13;
+  controls.maxPolarAngle=1.45;
+  controls.minPolarAngle=.2;
+  controls.autoRotateSpeed=.5;
+  controls.enablePan=!coarse;
+  controls.touches.ONE=THREE.TOUCH.ROTATE;
+  controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
+
+  let lastInteraction=0;
+
+  controls.addEventListener("start",()=>{
+    cameraFlight=null;
+    lastInteraction=performance.now();
+  });
+
+  controls.addEventListener("end",()=>{
+    lastInteraction=performance.now();
+  });
+
+  const materials={
+    enamel:new THREE.MeshStandardMaterial({
+      color:0x101c24,
+      metalness:.65,
+      roughness:.35
+    }),
+    brass:new THREE.MeshStandardMaterial({
+      color:0xc9973f,
+      metalness:.9,
+      roughness:.28
+    }),
+    chrome:new THREE.MeshStandardMaterial({
+      color:0xdfe8ee,
+      metalness:1,
+      roughness:.15
+    }),
+    stage:new THREE.MeshStandardMaterial({
+      color:0x1b2a33,
+      metalness:.5,
+      roughness:.5
+    }),
+    glass:new THREE.MeshPhysicalMaterial({
+      color:0xbfe8ff,
+      transparent:true,
+      opacity:.32,
+      roughness:.06,
+      metalness:0
+    }),
+    lens:new THREE.MeshPhysicalMaterial({
+      color:0x18324a,
+      metalness:.2,
+      roughness:.1,
+      transparent:true,
+      opacity:.9
+    }),
+    bench:new THREE.MeshStandardMaterial({
+      color:0x2a1e14,
+      roughness:.9,
+      metalness:.05
+    })
+  };
+
+  function makeMesh(geometry,material,castShadow=true){
+    const object=new THREE.Mesh(geometry,material);
+    object.castShadow=castShadow;
+    return object;
+  }
+
+  const bench=makeMesh(
+    new THREE.CylinderGeometry(5.6,5.9,.32,48),
+    materials.bench,
+    false
+  );
+  bench.position.y=-.16;
+  bench.receiveShadow=true;
+  scene.add(bench);
+
+  const microscope=new THREE.Group();
+  scene.add(microscope);
+
+  const base=makeMesh(
+    new THREE.BoxGeometry(1.7,.34,2.2),
+    materials.enamel
+  );
+  base.position.set(0,.17,-.15);
+  microscope.add(base);
+
+  const baseTop=makeMesh(
+    new THREE.BoxGeometry(1.5,.1,2),
+    materials.brass
+  );
+  baseTop.position.set(0,.39,-.15);
+  microscope.add(baseTop);
+
+  const pillar=makeMesh(
+    new THREE.CylinderGeometry(.14,.18,1.1,16),
+    materials.enamel
+  );
+  pillar.position.set(0,.95,-.85);
+  microscope.add(pillar);
+
+  const armCurve=new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0,.9,-.85),
+    new THREE.Vector3(0,1.9,-1.02),
+    new THREE.Vector3(0,2.8,-.85),
+    new THREE.Vector3(0,3.3,-.42)
+  ]);
+
+  microscope.add(makeMesh(
+    new THREE.TubeGeometry(armCurve,24,.13,12),
+    materials.enamel
+  ));
+
+  const bracket=makeMesh(
+    new THREE.BoxGeometry(.3,.55,.6),
+    materials.enamel
+  );
+  bracket.position.set(0,3.05,-.28);
+  microscope.add(bracket);
+
+  const stagePlate=makeMesh(
+    new THREE.BoxGeometry(1.9,.12,1.6),
+    materials.stage
+  );
+  stagePlate.position.set(0,1.94,0);
+  stagePlate.receiveShadow=true;
+  microscope.add(stagePlate);
+
+  const aperture=new THREE.Mesh(
+    new THREE.CircleGeometry(.17,24),
+    new THREE.MeshBasicMaterial({color:0x02060a})
+  );
+  aperture.rotation.x=-Math.PI/2;
+  aperture.position.set(0,2.005,0);
+  microscope.add(aperture);
+
+  for(const x of[-.75,.75]){
+    const clip=makeMesh(
+      new THREE.BoxGeometry(.1,.06,.5),
+      materials.brass
+    );
+    clip.position.set(x,2.03,.3);
+    microscope.add(clip);
+  }
+
+  const slideGroup=new THREE.Group();
+  slideGroup.position.y=2.04;
+  microscope.add(slideGroup);
+
+  slideGroup.add(makeMesh(
+    new THREE.BoxGeometry(1.1,.04,.45),
+    materials.glass,
+    false
+  ));
+
+  const specimenTextures={};
+
+  for(const kind of["onion","e","para"]){
+    const textureCanvas=document.createElement("canvas");
+    textureCanvas.width=128;
+    textureCanvas.height=128;
+
+    const context=textureCanvas.getContext("2d");
+    context.translate(64,64);
+    context.scale(.55,.55);
+    drawSpecimen(context,kind,1);
+
+    const texture=new THREE.CanvasTexture(textureCanvas);
+    texture.colorSpace=THREE.SRGBColorSpace;
+    specimenTextures[kind]=texture;
+  }
+
+  const specimenMaterial=new THREE.MeshBasicMaterial({
+    map:specimenTextures.onion,
+    transparent:true,
+    depthWrite:false
+  });
+
+  const specimenPlane=new THREE.Mesh(
+    new THREE.PlaneGeometry(.26,.26),
+    specimenMaterial
+  );
+  specimenPlane.rotation.x=-Math.PI/2;
+  specimenPlane.position.y=.025;
+  slideGroup.add(specimenPlane);
+
+  const crackPositions=[];
+  const crackRandom=seededRandom(7);
+
+  for(let i=0;i<7;i++){
+    let angle=crackRandom()*Math.PI*2;
+    let x=0;
+    let z=0;
+
+    for(let segment=0;segment<4;segment++){
+      const nextX=x+Math.cos(angle)*.13;
+      const nextZ=z+Math.sin(angle)*.1;
+
+      crackPositions.push(x,.03,z,nextX,.03,nextZ);
+
+      x=nextX;
+      z=nextZ;
+      angle+=(crackRandom()-.5);
+    }
+  }
+
+  const crackGeometry=new THREE.BufferGeometry();
+  crackGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(crackPositions,3)
+  );
+
+  const crackLines=new THREE.LineSegments(
+    crackGeometry,
+    new THREE.LineBasicMaterial({
+      color:0xffffff,
+      transparent:true,
+      opacity:.9
+    })
+  );
+  crackLines.visible=false;
+  slideGroup.add(crackLines);
+
+  const head=new THREE.Group();
+  microscope.add(head);
+
+  const tube=makeMesh(
+    new THREE.CylinderGeometry(.16,.16,1.15,20),
+    materials.enamel
+  );
+  tube.position.y=1.68;
+  head.add(tube);
+
+  const eyepiece=makeMesh(
+    new THREE.CylinderGeometry(.13,.15,.45,20),
+    materials.chrome
+  );
+  eyepiece.position.y=2.45;
+  head.add(eyepiece);
+
+  const eyepieceRing=makeMesh(
+    new THREE.TorusGeometry(.13,.03,10,24),
+    materials.brass
+  );
+  eyepieceRing.rotation.x=Math.PI/2;
+  eyepieceRing.position.y=2.68;
+  head.add(eyepieceRing);
+
+  const eyepieceLens=new THREE.Mesh(
+    new THREE.CircleGeometry(.1,20),
+    materials.lens
+  );
+  eyepieceLens.rotation.x=-Math.PI/2;
+  eyepieceLens.position.y=2.685;
+  head.add(eyepieceLens);
+
+  const turret=new THREE.Group();
+  turret.position.set(0,0,-.42);
+  head.add(turret);
+
+  const turretDisc=makeMesh(
+    new THREE.CylinderGeometry(.5,.55,.16,24),
+    materials.chrome
+  );
+  turretDisc.position.y=1.02;
+  turret.add(turretDisc);
+
+  const objectiveColors={
+    4:0xff5d5d,
+    10:0xffb020,
+    40:0x4cc9f0
+  };
+  const objectiveLengths={4:.5,10:.7,40:.95};
+
+  objectives.forEach((objective,index)=>{
+    const angle=index*Math.PI*2/3;
+    const group=new THREE.Group();
+
+    group.position.set(
+      Math.sin(angle)*.42,
+      0,
+      Math.cos(angle)*.42
+    );
+
+    const length=objectiveLengths[objective];
+
+    const body=makeMesh(
+      new THREE.CylinderGeometry(.1,.12,length,14),
+      materials.chrome
+    );
+    body.position.y=length/2;
+    group.add(body);
+
+    const collar=makeMesh(
+      new THREE.CylinderGeometry(
+        .08,.08,Math.max(.05,1-length),10
+      ),
+      materials.enamel
+    );
+    collar.position.y=(1+length)/2;
+    group.add(collar);
+
+    const ring=makeMesh(
+      new THREE.TorusGeometry(.115,.025,8,18),
+      new THREE.MeshStandardMaterial({
+        color:objectiveColors[objective],
+        metalness:.4,
+        roughness:.4
+      })
+    );
+    ring.rotation.x=Math.PI/2;
+    ring.position.y=length*.72;
+    group.add(ring);
+
+    const tip=new THREE.Mesh(
+      new THREE.CircleGeometry(.07,14),
+      materials.lens
+    );
+    tip.rotation.x=Math.PI/2;
+    tip.position.y=.005;
+    group.add(tip);
+
+    turret.add(group);
+  });
+
+  const knobs=[];
+
+  for(const x of[.32,-.32]){
+    const knobGroup=new THREE.Group();
+    knobGroup.position.set(x,2.65,-.8);
+
+    const outer=makeMesh(
+      new THREE.CylinderGeometry(.2,.2,.12,20),
+      materials.brass
+    );
+    outer.rotation.z=Math.PI/2;
+    knobGroup.add(outer);
+
+    const inner=makeMesh(
+      new THREE.CylinderGeometry(.11,.11,.2,16),
+      materials.enamel
+    );
+    inner.rotation.z=Math.PI/2;
+    knobGroup.add(inner);
+
+    microscope.add(knobGroup);
+    knobs.push(knobGroup);
+  }
+
+  const mirrorGroup=new THREE.Group();
+  mirrorGroup.position.set(0,1.15,0);
+  microscope.add(mirrorGroup);
+
+  mirrorGroup.add(makeMesh(
+    new THREE.TorusGeometry(.3,.03,10,28),
+    materials.brass
+  ));
+
+  const mirror=new THREE.Mesh(
+    new THREE.CircleGeometry(.26,28),
+    new THREE.MeshStandardMaterial({
+      color:0xe8f2f8,
+      metalness:1,
+      roughness:.08,
+      side:THREE.DoubleSide
+    })
+  );
+  mirrorGroup.add(mirror);
+
+  const mirrorStand=makeMesh(
+    new THREE.CylinderGeometry(.04,.06,.7,10),
+    materials.enamel
+  );
+  mirrorStand.position.set(0,.75,0);
+  microscope.add(mirrorStand);
+
+  const beamGroup=new THREE.Group();
+  microscope.add(beamGroup);
+
+  const beamMaterial=new THREE.MeshBasicMaterial({
+    color:0xffe9b8,
+    transparent:true,
+    opacity:.2,
+    blending:THREE.AdditiveBlending,
+    depthWrite:false,
+    side:THREE.DoubleSide
+  });
+
+  const beam=new THREE.Mesh(
+    new THREE.CylinderGeometry(.15,.3,.85,18,1,true),
+    beamMaterial
+  );
+  beam.position.y=1.58;
+  beamGroup.add(beam);
+
+  const lampOrb=new THREE.Mesh(
+    new THREE.SphereGeometry(.17,18,14),
+    new THREE.MeshStandardMaterial({
+      color:0xffd9a0,
+      emissive:0xffb545,
+      emissiveIntensity:2.2
+    })
+  );
+  lampOrb.position.set(1.7,.5,1.3);
+  scene.add(lampOrb);
+
+  const lampBase=makeMesh(
+    new THREE.CylinderGeometry(.12,.16,.34,14),
+    materials.enamel
+  );
+  lampBase.position.set(1.7,.17,1.3);
+  scene.add(lampBase);
+
+  const rayGeometry=new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(1.7,.55,1.3),
+    new THREE.Vector3(0,1.15,0)
+  ]);
+
+  const lightRay=new THREE.Line(
+    rayGeometry,
+    new THREE.LineDashedMaterial({
+      color:0xffe9b8,
+      dashSize:.12,
+      gapSize:.09,
+      transparent:true,
+      opacity:.7
+    })
+  );
+  lightRay.computeLineDistances();
+  beamGroup.add(lightRay);
+
+  scene.add(new THREE.HemisphereLight(0x7fd4ff,0x1a0f08,.5));
+
+  const keyLight=new THREE.SpotLight(
+    0xffd9a0,2.6,30,.6,.5
+  );
+  keyLight.position.set(4,7.5,4);
+  keyLight.castShadow=true;
+  keyLight.shadow.mapSize.set(
+    coarse?512:1024,
+    coarse?512:1024
+  );
+  keyLight.shadow.bias=-.0005;
+  scene.add(keyLight);
+
+  const rimLight=new THREE.DirectionalLight(0x59e3ff,1.25);
+  rimLight.position.set(-5,4,-4);
+  scene.add(rimLight);
+
+  const fillLight=new THREE.PointLight(0xff4fa3,.55,14);
+  fillLight.position.set(-3,2,3);
+  scene.add(fillLight);
+
+  const lampLight=new THREE.PointLight(0xffc46b,1.1,9);
+  lampLight.position.copy(lampOrb.position);
+  scene.add(lampLight);
+
+  const mirrorSpot=new THREE.SpotLight(
+    0xfff2cf,2.4,6,.5,.7
+  );
+  mirrorSpot.position.set(0,1.1,0);
+  mirrorSpot.target.position.set(0,2.05,0);
+  scene.add(mirrorSpot,mirrorSpot.target);
+
+  const particleCount=coarse?80:160;
+  const particleGeometry=new THREE.BufferGeometry();
+  const particlePositions=new Float32Array(particleCount*3);
+  const particleBase=[];
+  const particlePhases=[];
+
+  for(let i=0;i<particleCount;i++){
+    const x=(Math.random()-.5)*8;
+    const y=.3+Math.random()*4.6;
+    const z=(Math.random()-.5)*8;
+
+    particlePositions.set([x,y,z],i*3);
+    particleBase.push(x,y,z);
+    particlePhases.push(Math.random()*Math.PI*2);
+  }
+
+  particleGeometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(particlePositions,3)
+  );
+
+  const dust=new THREE.Points(
+    particleGeometry,
+    new THREE.PointsMaterial({
+      color:0xffe9b8,
+      size:.035,
+      transparent:true,
+      opacity:.5,
+      blending:THREE.AdditiveBlending,
+      depthWrite:false
+    })
+  );
+  scene.add(dust);
+
+  const highlightCanvas=document.createElement("canvas");
+  highlightCanvas.width=128;
+  highlightCanvas.height=128;
+
+  const highlightContext=highlightCanvas.getContext("2d");
+  const highlightGradient=highlightContext.createRadialGradient(
+    64,64,4,64,64,60
+  );
+  highlightGradient.addColorStop(0,"rgba(255,255,255,.95)");
+  highlightGradient.addColorStop(.4,"rgba(255,255,255,.35)");
+  highlightGradient.addColorStop(1,"rgba(255,255,255,0)");
+  highlightContext.fillStyle=highlightGradient;
+  highlightContext.fillRect(0,0,128,128);
+
+  const highlight=new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map:new THREE.CanvasTexture(highlightCanvas),
+      transparent:true,
+      depthTest:false,
+      blending:THREE.AdditiveBlending
+    })
+  );
+  highlight.scale.set(1.1,1.1,1);
+  highlight.visible=false;
+  scene.add(highlight);
+
+  const labelsLayer=$("labelsLayer");
+
+  const labelDefinitions=[
+    ["العدسة العينية",()=>new THREE.Vector3(0,head.position.y+2.72,0)],
+    ["العدسة الشيئية",()=>new THREE.Vector3(0,head.position.y+.4,0)],
+    ["القرص الدوّار",()=>new THREE.Vector3(.5,head.position.y+1.05,-.42)],
+    ["المنضدة",()=>new THREE.Vector3(.85,2.06,.5)],
+    ["الشريحة",()=>slideGroup.position.clone().add(new THREE.Vector3(-.45,.12,0))],
+    ["العاكس",()=>new THREE.Vector3(0,1.15,.34)],
+    ["مقبض الضبط",()=>new THREE.Vector3(.45,2.65,-.8)],
+    ["الذراع",()=>new THREE.Vector3(0,2.5,-.95)],
+    ["القاعدة",()=>new THREE.Vector3(.7,.42,.6)]
+  ];
+
+  const labels=labelDefinitions.map(([name,getPosition])=>{
+    const element=document.createElement("span");
+    element.className="lbl";
+    element.textContent=name;
+    labelsLayer.appendChild(element);
+    return{element,getPosition};
+  });
+
+  gl={
+    THREE,
+    renderer,
+    scene,
+    camera,
+    controls,
+    canvas,
+    head,
+    turret,
+    mirror,
+    slideGroup,
+    specimenMaterial,
+    specimenTextures,
+    knobs,
+    beamGroup,
+    beamMaterial,
+    mirrorSpot,
+    lampLight,
+    dust,
+    particleBase,
+    particlePhases,
+    highlight,
+    highlightUntil:0,
+    crackLines,
+    labelsLayer,
+    labels,
+    shadowDirty:true,
+    current:{...targets},
+    getLastInteraction:()=>lastInteraction
+  };
+
+  beamGroup.visible=state.beam;
+  labelsLayer.style.display=state.labels?"":"none";
+
+  function resize(){
+    const width=Math.max(1,viewport.clientWidth);
+    const height=Math.max(1,viewport.clientHeight);
+    const ratio=Math.min(devicePixelRatio||1,coarse?1.5:2);
+
+    renderer.setPixelRatio(ratio);
+    renderer.setSize(width,height,false);
+    camera.aspect=width/height;
+    camera.updateProjectionMatrix();
+
+    if(gl) gl.shadowDirty=true;
+  }
+
+  new ResizeObserver(resize).observe(viewport);
+  resize();
+
+  renderer.shadowMap.needsUpdate=true;
+
+  canvas.addEventListener("webglcontextlost",event=>{
+    event.preventDefault();
+    $("fallback3d").classList.add("show");
+    toast("توقف العرض ثلاثي الأبعاد مؤقتًا؛ المنظار والدرس ما زالا يعملان.","warn");
+  });
+
+  canvas.addEventListener("webglcontextrestored",()=>{
+    $("fallback3d").classList.remove("show");
+    resize();
+    if(gl) gl.shadowDirty=true;
+  });
+}
+
+initialize3D().catch(()=>{
+  $("fallback3d").classList.add("show");
+  $("glCanvas").style.display="none";
+  $("viewHint").textContent="المنظار وأدوات الدرس تعمل بدون العرض ثلاثي الأبعاد";
+});
+
+/* حلقة رسم واحدة */
+let previousFrame=performance.now();
+let previousEyepieceFrame=0;
+const projectedVector={value:null};
+
+function animationLoop(now){
+  requestAnimationFrame(animationLoop);
+
+  const delta=Math.min(.05,(now-previousFrame)/1000);
+  previousFrame=now;
+  const time=now/1000;
+
+  updateTweens(now);
+
+  if(!cracked&&!crashLock&&state.focus<=2){
+    crackSlide();
+  }
+
+  updateChallenge(now);
+
+  if(gl){
+    const current=gl.current;
+    const smoothing=Math.min(1,delta*6);
+
+    let angleDifference=
+      ((targets.turretRotation-current.turretRotation+Math.PI)
+      %(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;
+
+    current.turretRotation+=
+      angleDifference*Math.min(1,delta*5);
+
+    const moving=
+      Math.abs(angleDifference)>.002||
+      Math.abs(targets.headY-current.headY)>.002||
+      Math.abs(targets.slideX-current.slideX)>.002||
+      Math.abs(targets.slideZ-current.slideZ)>.002;
+
+    current.headY=lerp(current.headY,targets.headY,smoothing);
+    current.mirrorTilt=lerp(
+      current.mirrorTilt,targets.mirrorTilt,smoothing
+    );
+    current.slideX=lerp(current.slideX,targets.slideX,smoothing);
+    current.slideZ=lerp(current.slideZ,targets.slideZ,smoothing);
+    current.beamOpacity=lerp(
+      current.beamOpacity,targets.beamOpacity,smoothing
+    );
+    current.spotIntensity=lerp(
+      current.spotIntensity,targets.spotIntensity,smoothing
+    );
+    current.knobRotation=lerp(
+      current.knobRotation,targets.knobRotation,smoothing
+    );
+
+    gl.turret.rotation.y=current.turretRotation;
+    gl.head.position.y=current.headY;
+    gl.mirror.rotation.x=current.mirrorTilt;
+
+    let slideEntranceOffset=0;
+
+    if(slideEnterStart){
+      const progress=clamp((now-slideEnterStart)/900,0,1);
+      slideEntranceOffset=(1-ease(progress))*1.5;
+      if(progress>=1) slideEnterStart=0;
+    }
+
+    gl.slideGroup.position.x=current.slideX+slideEntranceOffset;
+    gl.slideGroup.position.z=current.slideZ;
+
+    gl.knobs.forEach(knob=>{
+      knob.rotation.x=current.knobRotation;
+    });
+
+    gl.beamMaterial.opacity=
+      current.beamOpacity*(1+Math.sin(time*2.2)*.12);
+    gl.mirrorSpot.intensity=current.spotIntensity;
+    gl.lampLight.intensity=1.05+Math.sin(time*1.7)*.15;
+
+    if(gl.specimenMaterial.map!==gl.specimenTextures[state.specimen]){
+      gl.specimenMaterial.map=gl.specimenTextures[state.specimen];
+      gl.specimenMaterial.needsUpdate=true;
+    }
+
+    if(!reduced){
+      const positions=gl.dust.geometry.attributes.position;
+
+      for(let i=0;i<positions.count;i++){
+        positions.array[i*3+1]=
+          gl.particleBase[i*3+1]+
+          Math.sin(time*.35+gl.particlePhases[i])*.18;
+
+        positions.array[i*3]=
+          gl.particleBase[i*3]+
+          Math.sin(time*.2+gl.particlePhases[i]*2)*.1;
+      }
+
+      positions.needsUpdate=true;
+    }
+
+    if(now<gl.highlightUntil){
+      gl.highlight.visible=true;
+      const size=1.05+Math.sin(time*6)*.15;
+      gl.highlight.scale.set(size,size,1);
+    }else{
+      gl.highlight.visible=false;
+    }
+
+    if(cameraFlight){
+      const progress=clamp(
+        (now-cameraFlight.start)/cameraFlight.duration,0,1
+      );
+      const eased=ease(progress);
+
+      gl.camera.position.lerpVectors(
+        cameraFlight.fromPosition,
+        cameraFlight.toPosition,
+        eased
+      );
+
+      gl.controls.target.lerpVectors(
+        cameraFlight.fromTarget,
+        cameraFlight.toTarget,
+        eased
+      );
+
+      if(progress>=1) cameraFlight=null;
+    }
+
+    gl.controls.autoRotate=
+      state.autoRot&&
+      !cameraFlight&&
+      !reduced&&
+      now-gl.getLastInteraction()>2500;
+
+    gl.controls.update();
+
+    if(gl.shadowDirty||moving){
+      gl.renderer.shadowMap.needsUpdate=true;
+      gl.shadowDirty=false;
+    }
+
+    gl.renderer.render(gl.scene,gl.camera);
+
+    if(state.labels){
+      if(!projectedVector.value){
+        projectedVector.value=new gl.THREE.Vector3();
+      }
+
+      const width=gl.canvas.clientWidth;
+      const height=gl.canvas.clientHeight;
+      const vector=projectedVector.value;
+
+      for(const label of gl.labels){
+        vector.copy(label.getPosition()).project(gl.camera);
+
+        if(
+          vector.z>1||
+          vector.x<-1.15||
+          vector.x>1.15||
+          vector.y<-1.15||
+          vector.y>1.15
+        ){
+          label.element.style.display="none";
+          continue;
+        }
+
+        label.element.style.display="";
+        label.element.style.transform=`translate(
+          ${(vector.x*.5+.5)*width}px,
+          ${(-vector.y*.5+.5)*height}px
+        ) translate(50%,-135%)`;
+      }
+    }
+  }
+
+  const eyepieceInterval=coarse?40:33;
+
+  if(now-previousEyepieceFrame>eyepieceInterval){
+    drawEyepiece(time);
+    previousEyepieceFrame=now;
+  }
+}
+
+/* التنقل والكشف عند التمرير */
+const sectionObserver=new IntersectionObserver(entries=>{
+  for(const entry of entries){
+    if(!entry.isIntersecting) continue;
+
+    document.querySelectorAll("#navLinks a").forEach(link=>{
+      link.classList.toggle(
+        "active",
+        link.getAttribute("href")===`#${entry.target.id}`
+      );
+    });
+  }
+},{
+  rootMargin:"-30% 0px -55% 0px",
+  threshold:0
+});
+
+document.querySelectorAll("main section").forEach(section=>{
+  sectionObserver.observe(section);
+});
+
+const revealObserver=new IntersectionObserver(entries=>{
+  for(const entry of entries){
+    if(entry.isIntersecting){
+      entry.target.classList.add("in");
+      revealObserver.unobserve(entry.target);
+    }
+  }
+},{threshold:.08});
+
+document.querySelectorAll(".reveal").forEach(element=>{
+  revealObserver.observe(element);
+});
+
+/* منع اختصارات الأسهم من تحريك الصفحة أثناء استخدام المنظار */
+document.addEventListener("keydown",event=>{
+  if(
+    document.activeElement===eyepieceCanvas&&
+    ["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(event.key)
+  ){
+    event.preventDefault();
+  }
+});
+
+/* التشغيل */
+computeTargets();
+syncUI();
+refreshStaticViews();
+startQuiz();
+drawEyepiece(0);
+requestAnimationFrame(animationLoop);
+
+setTimeout(()=>{
+  toast(
+    coarse
+      ?"اسحب المجهر بإصبع واحد، وقرّب بإصبعين. جرّب سحب صورة المنظار أيضًا."
+      :"اسحب المجهر للتدوير، واستخدم عجلة الفأرة للتقريب.",
+    "info",
+    5000
+  );
+},900);
+</script>
+</body>
+</html>
